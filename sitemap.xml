@@ -2,9 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.d2okkk.net/2017/09/05/hello-world/</loc>
+    
+    <lastmod>2017-09-05T14:10:53.209Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://blog.d2okkk.net/about/index.html</loc>
     
-    <lastmod>2017-09-05T06:51:54.989Z</lastmod>
+    <lastmod>2017-09-05T14:06:43.016Z</lastmod>
     
   </url>
   
@@ -19,13 +26,6 @@
     <loc>http://blog.d2okkk.net/tags/index.html</loc>
     
     <lastmod>2017-09-05T06:04:02.393Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://blog.d2okkk.net/2017/09/05/hello-world/</loc>
-    
-    <lastmod>2017-09-05T06:02:54.806Z</lastmod>
     
   </url>
   

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>D2O | 重水</title>
-  <subtitle>这是D2O的隐藏站点</subtitle>
+  <subtitle>恭喜您发现本站,这里不会烂尾</subtitle>
   <link href="/atom.xml" rel="self"/>
   
-  <link href="http://conupefox.github.io/"/>
+  <link href="http://blog.d2okkk.net/"/>
   <updated>2017-09-05T06:02:54.806Z</updated>
-  <id>http://conupefox.github.io/</id>
+  <id>http://blog.d2okkk.net/</id>
   
   <author>
     <name>D2O</name>
@@ -17,8 +17,8 @@
   
   <entry>
     <title>Hello World</title>
-    <link href="http://conupefox.github.io/2017/09/05/hello-world/"/>
-    <id>http://conupefox.github.io/2017/09/05/hello-world/</id>
+    <link href="http://blog.d2okkk.net/2017/09/05/hello-world/"/>
+    <id>http://blog.d2okkk.net/2017/09/05/hello-world/</id>
     <published>2017-09-05T02:43:00.000Z</published>
     <updated>2017-09-05T06:02:54.806Z</updated>
     
@@ -39,10 +39,10 @@
     
     </summary>
     
-      <category term="hello" scheme="http://conupefox.github.io/categories/hello/"/>
+      <category term="hello" scheme="http://blog.d2okkk.net/categories/hello/"/>
     
     
-      <category term="hello" scheme="http://conupefox.github.io/tags/hello/"/>
+      <category term="hello" scheme="http://blog.d2okkk.net/tags/hello/"/>
     
   </entry>
   

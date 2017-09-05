@@ -2,9 +2,23 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://conupefox.github.io/categories/index.html</loc>
+    
+    <lastmod>2017-09-05T06:04:25.853Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://conupefox.github.io/tags/index.html</loc>
+    
+    <lastmod>2017-09-05T06:04:02.393Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://conupefox.github.io/2017/09/05/hello-world/</loc>
     
-    <lastmod>2017-09-05T05:13:53.656Z</lastmod>
+    <lastmod>2017-09-05T06:02:54.806Z</lastmod>
     
   </url>
   

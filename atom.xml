@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://blog.d2okkk.net/"/>
-  <updated>2017-09-05T15:52:45.862Z</updated>
+  <updated>2017-09-14T08:52:22.047Z</updated>
   <id>http://blog.d2okkk.net/</id>
   
   <author>
@@ -16,33 +16,42 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>Hello World</title>
-    <link href="http://blog.d2okkk.net/201709/hello-world/"/>
-    <id>http://blog.d2okkk.net/201709/hello-world/</id>
-    <published>2017-09-05T02:43:00.000Z</published>
-    <updated>2017-09-05T15:52:45.862Z</updated>
+    <title>CentOS7开局配置记录</title>
+    <link href="http://blog.d2okkk.net/201709/centos-init/"/>
+    <id>http://blog.d2okkk.net/201709/centos-init/</id>
+    <published>2017-09-14T08:27:00.000Z</published>
+    <updated>2017-09-14T08:52:22.047Z</updated>
     
-    <content type="html"><![CDATA[<p>Welcome to <a href="https://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.<br><a id="more"></a></p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo new <span class="string">"My New Post"</span></div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo server</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo generate</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo deploy</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
+    <content type="html"><![CDATA[<p>记录一下我自己用的CentOS 7的开局配置。</p>
+<p>查看CentOS版本，修改主机名、修改时区、升级到最新发行版</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">cat /etc/redhat-release </div><div class="line">hostnamectl --static <span class="built_in">set</span>-hostname D2O-VPS</div><div class="line">rm -f /etc/localtime</div><div class="line">ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime</div><div class="line">yum update</div></pre></td></tr></table></figure>
+ <a id="more"></a>
+<p>CentOS7默认没有ifconfig nslookup等工具，安装之。用回iptables代替默认的firewalld。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">yum install -y <span class="built_in">bind</span>-utils net-tools htop mlocate initscripts.x86_64 </div><div class="line">updatedb</div><div class="line">systemctl stop firewalld </div><div class="line">systemctl mask firewalld </div><div class="line">yum install -y iptables-services policycoreutils </div><div class="line">systemctl <span class="built_in">enable</span> iptables </div><div class="line">systemctl <span class="built_in">enable</span> ip6tables</div></pre></td></tr></table></figure>
+<p>修改ssh端口，修改ssh超时自动登出时间，开放ssh防火墙<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">vi /etc/ssh/sshd_config </div><div class="line"> Port xx22</div><div class="line">vi /etc/profile</div><div class="line"> <span class="built_in">export</span> TMOUT=0</div></pre></td></tr></table></figure></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport xx22 -j ACCEPT</div><div class="line">service iptables save</div></pre></td></tr></table></figure>
+<p>开启iptables转发，开启内核转发，关闭rp_filter。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iptables -I FORWARD -j ACCEPT</div><div class="line">service iptables save</div></pre></td></tr></table></figure></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">vi /etc/sysctl.conf </div><div class="line"> net.ipv4.ip_forward = 1 </div><div class="line"> net.ipv6.conf.all.forwarding = 1 </div><div class="line"> net.ipv4.conf.default.rp_filter = 0 </div><div class="line"> net.ipv4.conf.all.rp_filter = 0</div><div class="line"> </div><div class="line">sysctl -p</div></pre></td></tr></table></figure>
+<p>导入epel源，安装htop snmp等常用工具<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">yum install -y epel-release</div><div class="line">yum install -y htop net-snmp</div></pre></td></tr></table></figure></p>
+<p>配置snmp<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">cd</span> ~ </div><div class="line"> mv /etc/snmp/snmpd.conf /etc/snmp/snmpd.conf.bak </div><div class="line"> vi /etc/snmp/snmpd.conf</div><div class="line"></div><div class="line"></div><div class="line"> com2sec notConfigUser default d2o</div><div class="line"> group notConfigGroup v1 notConfigUser </div><div class="line"> group notConfigGroup v2c notConfigUser</div><div class="line"></div><div class="line"> view systemview included .1.3.6.1.2.1.1 </div><div class="line"> view systemview included .1.3.6.1.2.1.25.1.1</div><div class="line"></div><div class="line"> access notConfigGroup <span class="string">""</span> any noauth exact all none none</div><div class="line"></div><div class="line"> view all included .1 80</div><div class="line"></div><div class="line"> syslocation HongKong </div><div class="line"> syscontact D2O</div><div class="line"></div><div class="line"> dontLogTCPWrappersConnects yes</div><div class="line"></div><div class="line"> extend .1.3.6.1.4.1.2021.54 active_connects /bin/cat /proc/sys/net/netfilter/nf_conntrack_count </div><div class="line"> extend .1.3.6.1.4.1.2021.55 Route /bin/sh /etc/snmp/route_prefixes.sh</div><div class="line"></div><div class="line">systemctl <span class="built_in">enable</span> snmpd</div><div class="line">systemctl start snmpd</div><div class="line">iptables -I INPUT -p udp -m udp --dport 161 -j ACCEPT </div><div class="line">service iptables save</div></pre></td></tr></table></figure></p>
+<p>参考：</p>
+<p><a href="http://blog.csdn.net/conupefox/article/details/49369035" target="_blank" rel="external">http://blog.csdn.net/conupefox/article/details/49369035</a><br><a href="http://www.jb51.net/article/106385.htm" target="_blank" rel="external">http://www.jb51.net/article/106385.htm</a></p>
 ]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;Welcome to &lt;a href=&quot;https://hexo.io/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Hexo&lt;/a&gt;! This is your very first post. Check &lt;a href=&quot;https://hexo.io/docs/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;documentation&lt;/a&gt; for more info. If you get any problems when using Hexo, you can find the answer in &lt;a href=&quot;https://hexo.io/docs/troubleshooting.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;troubleshooting&lt;/a&gt; or you can ask me on &lt;a href=&quot;https://github.com/hexojs/hexo/issues&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;GitHub&lt;/a&gt;.&lt;br&gt;
+      &lt;p&gt;记录一下我自己用的CentOS 7的开局配置。&lt;/p&gt;
+&lt;p&gt;查看CentOS版本，修改主机名、修改时区、升级到最新发行版&lt;/p&gt;
+&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;cat /etc/redhat-release &lt;/div&gt;&lt;div class=&quot;line&quot;&gt;hostnamectl --static &lt;span class=&quot;built_in&quot;&gt;set&lt;/span&gt;-hostname D2O-VPS&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;rm -f /etc/localtime&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;yum update&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
     
     </summary>
     
-      <category term="Hello World" scheme="http://blog.d2okkk.net/categories/Hello-World/"/>
+      <category term="系统" scheme="http://blog.d2okkk.net/categories/%E7%B3%BB%E7%BB%9F/"/>
     
     
-      <category term="Hello World" scheme="http://blog.d2okkk.net/tags/Hello-World/"/>
+      <category term="linux" scheme="http://blog.d2okkk.net/tags/linux/"/>
+    
+      <category term="centos" scheme="http://blog.d2okkk.net/tags/centos/"/>
     
   </entry>
   

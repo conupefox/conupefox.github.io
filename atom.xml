@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://blog.d2okkk.net/"/>
-  <updated>2017-09-14T09:34:18.657Z</updated>
+  <updated>2017-09-15T05:34:53.064Z</updated>
   <id>http://blog.d2okkk.net/</id>
   
   <author>
@@ -14,6 +14,46 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>编译安装libbgpdump IRRToolset等BGP相关软件包</title>
+    <link href="http://blog.d2okkk.net/201709/bgpdump/"/>
+    <id>http://blog.d2okkk.net/201709/bgpdump/</id>
+    <published>2017-09-15T03:45:00.000Z</published>
+    <updated>2017-09-15T05:34:53.064Z</updated>
+    
+    <content type="html"><![CDATA[<p><a href="https://bitbucket.org/ripencc/bgpdump/wiki/Home" target="_blank" rel="external">libbgpdump</a>是RIPE NCC提供的BGP路由表分析工具，可以通过<a href="https://www.ripe.net/analyse/internet-measurements/routing-information-service-ris/ris-raw-data" target="_blank" rel="external">RIPE NCC</a>或者<a href="http://routeviews.org/" target="_blank" rel="external">RouteViews</a>提供的RIB路由表来分析全球BGP路由情况。</p>
+<p><a href="https://github.com/irrtoolset/irrtoolset" target="_blank" rel="external">IRRToolset</a>是互联网路由策略生成工具，可以通过<code>Internet Routing Registries (IRR)</code>服务生成路由策略。目前我用到的只是他提供的<code>peval</code>，把<code>AS-set</code>转换成<code>ASN</code>列表的功能。</p>
+ <a id="more"></a>
+<p><a href="https://bgpstream.caida.org/download" target="_blank" rel="external">BGPStream</a>可以看成是<code>libbgpdump</code>的升级版，可以完全取代<code>libbgpdump</code>，并支持更多高级特性。<br>目前我用到的只是他提供的<a href="https://bgpstream.caida.org/docs/api/broker" target="_blank" rel="external">Broker HTTP API</a>可以不用下载rib文件，直接获取rib数据。</p>
+<p><a href="https://github.com/firehol/iprange" target="_blank" rel="external">iprange</a>，ip地址格式转换、合并、排序神器，可以支持多种格式的输入输出，C语言编写，效率高。</p>
+<p>以下是编译安装这些工具的记录。</p>
+<p>编译安装libgpdump</p>
+<p>首先安装依赖<code>zlib-devel</code> <code>bzip2-devel</code> ，然后下载<a href="http://ris.ripe.net/source/bgpdump/libbgpdump-1.5.0.tgz" target="_blank" rel="external">源码包</a>，最后make一下就好了。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">yum install -y bzip2-devel zlib-devel</div><div class="line">wget http://ris.ripe.net/<span class="built_in">source</span>/bgpdump/libbgpdump-1.5.0.tgz</div><div class="line">tar xvf libbgpdump-1.5.0.tgz</div><div class="line"><span class="built_in">cd</span> libbgpdump-1.5.0</div><div class="line">./configure</div><div class="line">make &amp;&amp; make install</div><div class="line">bgpdump --version</div></pre></td></tr></table></figure>
+<p>编译安装IRRToolset：</p>
+<p>笔者的CentOS 7.4.1708直接编译不通过，需要打2个补丁。<br>CentOS 6 是可以直接编译，原因不深究。。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">wget ftp://ftp.isc.org/isc/IRRToolSet/IRRToolSet-5.0.1/irrtoolset-5.0.1.tar.gz</div><div class="line">tar xvf irrtoolset-5.0.1.tar.gz</div><div class="line"><span class="built_in">cd</span> irrtoolset-5.0.1</div><div class="line">wget http://ftp.netbsd.org/pub/pkgsrc/current/pkgsrc/net/irrtoolset5/patches/patch-src_rpsl_Makefile.in</div><div class="line">wget http://ftp.netbsd.org/pub/pkgsrc/current/pkgsrc/net/irrtoolset5/patches/patch-src_rpsl_object.cc</div><div class="line">patch src/rpsl/Makefile.in patch-src_rpsl_Makefile.in</div><div class="line">patch src/rpsl/object.cc patch-src_rpsl_object.cc</div><div class="line">./configure</div><div class="line">make &amp;&amp; make install</div></pre></td></tr></table></figure></p>
+<p>编译安装BGPStream：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">wget https://bgpstream.caida.org/bundles/caidabgpstreamwebhomepage/dists/bgpstream-1.1.0.tar.gz</div><div class="line">tar xvf bgpstream-1.1.0.tar.gz</div><div class="line">rpm -ivh https://www.cloudrouter.org/repo/proving_ground/centos/7/x86_64/libwandio-devel-1.0.4-2.el7.centos.x86_64.rpm</div><div class="line"><span class="built_in">cd</span> bgpstream-1.1.0</div><div class="line">./configure</div><div class="line">make &amp;&amp; make install</div></pre></td></tr></table></figure></p>
+<p>编译安装iprange：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">wget http://firehol.org/download/iprange/releases/v1.0.3/iprange-1.0.3.tar.gz</div><div class="line">tar xvf iprange-1.0.3.tar.gz</div><div class="line"><span class="built_in">cd</span> iprange-1.0.3</div><div class="line">./configure</div><div class="line">make &amp;&amp; make install</div></pre></td></tr></table></figure></p>
+<p>参考：</p>
+<p><a href="https://www.ripe.net/analyse/internet-measurements/routing-information-service-ris/ris-raw-data" target="_blank" rel="external">https://www.ripe.net/analyse/internet-measurements/routing-information-service-ris/ris-raw-data</a><br><a href="https://github.com/irrtoolset/irrtoolset" target="_blank" rel="external">https://github.com/irrtoolset/irrtoolset</a><br><a href="https://www.isc.org/downloads/" target="_blank" rel="external">https://www.isc.org/downloads/</a><br><a href="http://ndonaghy.com/561" target="_blank" rel="external">http://ndonaghy.com/561</a><br><a href="https://lists.isc.org/pipermail/irrtoolset/2013-October/000838.html" target="_blank" rel="external">https://lists.isc.org/pipermail/irrtoolset/2013-October/000838.html</a><br><a href="http://research.wand.net.nz/software/libwandio.php" target="_blank" rel="external">http://research.wand.net.nz/software/libwandio.php</a><br><a href="https://github.com/firehol/iprange" target="_blank" rel="external">https://github.com/firehol/iprange</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;a href=&quot;https://bitbucket.org/ripencc/bgpdump/wiki/Home&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;libbgpdump&lt;/a&gt;是RIPE NCC提供的BGP路由表分析工具，可以通过&lt;a href=&quot;https://www.ripe.net/analyse/internet-measurements/routing-information-service-ris/ris-raw-data&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;RIPE NCC&lt;/a&gt;或者&lt;a href=&quot;http://routeviews.org/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;RouteViews&lt;/a&gt;提供的RIB路由表来分析全球BGP路由情况。&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/irrtoolset/irrtoolset&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;IRRToolset&lt;/a&gt;是互联网路由策略生成工具，可以通过&lt;code&gt;Internet Routing Registries (IRR)&lt;/code&gt;服务生成路由策略。目前我用到的只是他提供的&lt;code&gt;peval&lt;/code&gt;，把&lt;code&gt;AS-set&lt;/code&gt;转换成&lt;code&gt;ASN&lt;/code&gt;列表的功能。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="系统" scheme="http://blog.d2okkk.net/categories/%E7%B3%BB%E7%BB%9F/"/>
+    
+    
+      <category term="bgp" scheme="http://blog.d2okkk.net/tags/bgp/"/>
+    
+      <category term="irr" scheme="http://blog.d2okkk.net/tags/irr/"/>
+    
+  </entry>
   
   <entry>
     <title>CentOS7开局配置记录</title>

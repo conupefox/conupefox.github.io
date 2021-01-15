@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.d2okkk.net","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="libbgpdump是RIPE NCC提供的BGP路由表分析工具，可以通过RIPE NCC或者RouteViews提供的RIB路由表来分析全球BGP路由情况。 IRRToolset是互联网路由策略生成工具，可以通过Internet Routing Registries (IRR)服务生成路由策略。目前我用到的只是他提供的peval，把AS-set转换成ASN列表的功能。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="编译安装libbgpdump IRRToolset等BGP相关软件包">
+<meta property="og:url" content="http://blog.d2okkk.net/201709/bgpdump/index.html">
+<meta property="og:site_name" content="D2O | 重水">
+<meta property="og:description" content="libbgpdump是RIPE NCC提供的BGP路由表分析工具，可以通过RIPE NCC或者RouteViews提供的RIB路由表来分析全球BGP路由情况。 IRRToolset是互联网路由策略生成工具，可以通过Internet Routing Registries (IRR)服务生成路由策略。目前我用到的只是他提供的peval，把AS-set转换成ASN列表的功能。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2017-09-15T03:45:00.000Z">
+<meta property="article:modified_time" content="2017-09-15T05:34:53.065Z">
+<meta property="article:author" content="D2O">
+<meta property="article:tag" content="bgp">
+<meta property="article:tag" content="irr">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://blog.d2okkk.net/201709/bgpdump/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>编译安装libbgpdump IRRToolset等BGP相关软件包 | D2O | 重水</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="D2O | 重水" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">D2O | 重水</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">恭喜您发现本站!</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://blog.d2okkk.net/201709/bgpdump/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="D2O">
+      <meta itemprop="description" content="blog.d2okkk.net">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="D2O | 重水">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          编译安装libbgpdump IRRToolset等BGP相关软件包
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2017-09-15 11:45:00 / Modified: 13:34:53" itemprop="dateCreated datePublished" datetime="2017-09-15T11:45:00+08:00">2017-09-15</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%B3%BB%E7%BB%9F/" itemprop="url" rel="index"><span itemprop="name">系统</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a target="_blank" rel="noopener" href="https://bitbucket.org/ripencc/bgpdump/wiki/Home">libbgpdump</a>是RIPE NCC提供的BGP路由表分析工具，可以通过<a target="_blank" rel="noopener" href="https://www.ripe.net/analyse/internet-measurements/routing-information-service-ris/ris-raw-data">RIPE NCC</a>或者<a target="_blank" rel="noopener" href="http://routeviews.org/">RouteViews</a>提供的RIB路由表来分析全球BGP路由情况。</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/irrtoolset/irrtoolset">IRRToolset</a>是互联网路由策略生成工具，可以通过<code>Internet Routing Registries (IRR)</code>服务生成路由策略。目前我用到的只是他提供的<code>peval</code>，把<code>AS-set</code>转换成<code>ASN</code>列表的功能。</p>
+ <a id="more"></a>
+
+<p><a target="_blank" rel="noopener" href="https://bgpstream.caida.org/download">BGPStream</a>可以看成是<code>libbgpdump</code>的升级版，可以完全取代<code>libbgpdump</code>，并支持更多高级特性。<br>目前我用到的只是他提供的<a target="_blank" rel="noopener" href="https://bgpstream.caida.org/docs/api/broker">Broker HTTP API</a>可以不用下载rib文件，直接获取rib数据。</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/firehol/iprange">iprange</a>，ip地址格式转换、合并、排序神器，可以支持多种格式的输入输出，C语言编写，效率高。</p>
+<p>以下是编译安装这些工具的记录。</p>
+<p>编译安装libgpdump</p>
+<p>首先安装依赖<code>zlib-devel</code> <code>bzip2-devel</code> ，然后下载<a target="_blank" rel="noopener" href="http://ris.ripe.net/source/bgpdump/libbgpdump-1.5.0.tgz">源码包</a>，最后make一下就好了。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">yum install -y bzip2-devel zlib-devel</span><br><span class="line">wget http://ris.ripe.net/<span class="built_in">source</span>/bgpdump/libbgpdump-1.5.0.tgz</span><br><span class="line">tar xvf libbgpdump-1.5.0.tgz</span><br><span class="line"><span class="built_in">cd</span> libbgpdump-1.5.0</span><br><span class="line">./configure</span><br><span class="line">make &amp;&amp; make install</span><br><span class="line">bgpdump --version</span><br></pre></td></tr></table></figure>
+<p>编译安装IRRToolset：</p>
+<p>笔者的CentOS 7.4.1708直接编译不通过，需要打2个补丁。<br>CentOS 6 是可以直接编译，原因不深究。。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">wget ftp://ftp.isc.org/isc/IRRToolSet/IRRToolSet-5.0.1/irrtoolset-5.0.1.tar.gz</span><br><span class="line">tar xvf irrtoolset-5.0.1.tar.gz</span><br><span class="line"><span class="built_in">cd</span> irrtoolset-5.0.1</span><br><span class="line">wget http://ftp.netbsd.org/pub/pkgsrc/current/pkgsrc/net/irrtoolset5/patches/patch-src_rpsl_Makefile.in</span><br><span class="line">wget http://ftp.netbsd.org/pub/pkgsrc/current/pkgsrc/net/irrtoolset5/patches/patch-src_rpsl_object.cc</span><br><span class="line">patch src/rpsl/Makefile.in patch-src_rpsl_Makefile.in</span><br><span class="line">patch src/rpsl/object.cc patch-src_rpsl_object.cc</span><br><span class="line">./configure</span><br><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+<p>编译安装BGPStream：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">wget https://bgpstream.caida.org/bundles/caidabgpstreamwebhomepage/dists/bgpstream-1.1.0.tar.gz</span><br><span class="line">tar xvf bgpstream-1.1.0.tar.gz</span><br><span class="line">rpm -ivh https://www.cloudrouter.org/repo/proving_ground/centos/7/x86_64/libwandio-devel-1.0.4-2.el7.centos.x86_64.rpm</span><br><span class="line"><span class="built_in">cd</span> bgpstream-1.1.0</span><br><span class="line">./configure</span><br><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+<p>编译安装iprange：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">wget http://firehol.org/download/iprange/releases/v1.0.3/iprange-1.0.3.tar.gz</span><br><span class="line">tar xvf iprange-1.0.3.tar.gz</span><br><span class="line"><span class="built_in">cd</span> iprange-1.0.3</span><br><span class="line">./configure</span><br><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://www.ripe.net/analyse/internet-measurements/routing-information-service-ris/ris-raw-data">https://www.ripe.net/analyse/internet-measurements/routing-information-service-ris/ris-raw-data</a><br><a target="_blank" rel="noopener" href="https://github.com/irrtoolset/irrtoolset">https://github.com/irrtoolset/irrtoolset</a><br><a target="_blank" rel="noopener" href="https://www.isc.org/downloads/">https://www.isc.org/downloads/</a><br><a target="_blank" rel="noopener" href="http://ndonaghy.com/561">http://ndonaghy.com/561</a><br><a target="_blank" rel="noopener" href="https://lists.isc.org/pipermail/irrtoolset/2013-October/000838.html">https://lists.isc.org/pipermail/irrtoolset/2013-October/000838.html</a><br><a target="_blank" rel="noopener" href="http://research.wand.net.nz/software/libwandio.php">http://research.wand.net.nz/software/libwandio.php</a><br><a target="_blank" rel="noopener" href="https://github.com/firehol/iprange">https://github.com/firehol/iprange</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/bgp/" rel="tag"># bgp</a>
+              <a href="/tags/irr/" rel="tag"># irr</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/201709/centos-init/" rel="prev" title="CentOS7开局配置记录">
+      <i class="fa fa-chevron-left"></i> CentOS7开局配置记录
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">D2O</p>
+  <div class="site-description" itemprop="description">blog.d2okkk.net</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">2</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">D2O</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

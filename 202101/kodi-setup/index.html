@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.d2okkk.net","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="前言：如果只想简单使用kodi，不用这么复杂，直接安装LibreELEC就可以了。我这是为了复用这台HTPC(J1800+8G内存)而弄，最终目标NAS+Kodi是All in one。 如果HTPC硬件比较先进(支持VT-D)，也不用这么复杂，安装虚拟机平台(VMware ESXi、PVE)把对应硬件直通，再安装LibreELEC、DSM6就行了。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ubuntu Server 20.04 LTS 最小安装kodi">
+<meta property="og:url" content="http://blog.d2okkk.net/202101/kodi-setup/index.html">
+<meta property="og:site_name" content="D2O | 重水">
+<meta property="og:description" content="前言：如果只想简单使用kodi，不用这么复杂，直接安装LibreELEC就可以了。我这是为了复用这台HTPC(J1800+8G内存)而弄，最终目标NAS+Kodi是All in one。 如果HTPC硬件比较先进(支持VT-D)，也不用这么复杂，安装虚拟机平台(VMware ESXi、PVE)把对应硬件直通，再安装LibreELEC、DSM6就行了。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://qzxx.com/wp-content/uploads/2017/12/7968f8254805154.jpg">
+<meta property="article:published_time" content="2021-01-16T05:01:57.000Z">
+<meta property="article:modified_time" content="2021-01-16T05:30:49.000Z">
+<meta property="article:author" content="D2O">
+<meta property="article:tag" content="ubuntu">
+<meta property="article:tag" content="kodi">
+<meta property="article:tag" content="sapphire">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://qzxx.com/wp-content/uploads/2017/12/7968f8254805154.jpg">
+
+<link rel="canonical" href="http://blog.d2okkk.net/202101/kodi-setup/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Ubuntu Server 20.04 LTS 最小安装kodi | D2O | 重水</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-105973717-1"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-105973717-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="D2O | 重水" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">D2O | 重水</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">恭喜您发现本站!</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://blog.d2okkk.net/202101/kodi-setup/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="D2O">
+      <meta itemprop="description" content="blog.d2okkk.net">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="D2O | 重水">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Ubuntu Server 20.04 LTS 最小安装kodi
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-01-16 13:01:57 / 修改时间：13:30:49" itemprop="dateCreated datePublished" datetime="2021-01-16T13:01:57+08:00">2021-01-16</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Home-Lab/" itemprop="url" rel="index"><span itemprop="name">Home Lab</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/202101/kodi-setup/" class="post-meta-item leancloud_visitors" data-flag-title="Ubuntu Server 20.04 LTS 最小安装kodi" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h3><p>如果只想简单使用kodi，不用这么复杂，直接安装<a target="_blank" rel="noopener" href="https://libreelec.tv/">LibreELEC</a>就可以了。我这是为了复用这台HTPC(J1800+8G内存)而弄，最终目标NAS+Kodi是All in one。</p>
+<p>如果HTPC硬件比较先进(支持VT-D)，也不用这么复杂，安装虚拟机平台(<a target="_blank" rel="noopener" href="https://www.vmware.com/cn/products/esxi-and-esx.html">VMware ESXi</a>、<a target="_blank" rel="noopener" href="https://pve.proxmox.com/wiki/Main_Page">PVE</a>)把对应硬件直通，再安装<a target="_blank" rel="noopener" href="https://libreelec.tv/">LibreELEC</a>、DSM6就行了。</p>
+<a id="more"></a>
+
+<h3 id="最小化安装Ubuntu-Server-20-04-LTS"><a href="#最小化安装Ubuntu-Server-20-04-LTS" class="headerlink" title="最小化安装Ubuntu Server 20.04 LTS"></a>最小化安装Ubuntu Server 20.04 LTS</h3><p>由于内存有限，只安装必需的包。官网下载Ubuntu Server 20.04 LTS的<a target="_blank" rel="noopener" href="https://releases.ubuntu.com/20.04/ubuntu-20.04.1-live-server-amd64.iso">ISO</a>，然后使用<a target="_blank" rel="noopener" href="https://www.balena.io/etcher/">balenaEtcher</a>写入U盘Boot机安装。</p>
+<p>安装过程全部默认，使用整个磁盘不使用LVM，软件包仅安装openssh。手动配置IP，用户名d2o。</p>
+<p>删除cloud-init</p>
+<blockquote>
+<ul>
+<li><p>Remove all cloud-init datasources</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo &#39;datasource_list: [ None ]&#39; | sudo -s tee &#x2F;etc&#x2F;cloud&#x2F;cloud.cfg.d&#x2F;90_dpkg.cfg</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Uninstall all it’s packages</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get purge cloud-init</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Delete all it’s configuration files</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo rm -rf &#x2F;etc&#x2F;cloud&#x2F;; sudo rm -rf &#x2F;var&#x2F;lib&#x2F;cloud&#x2F;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Remove open-iscsi</p>
+<p>The iSCSI daemon will wait indefinitely and hang the boot process if it’s not removed when cloud-init is removed</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt remove open-iscsi</span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ul>
+</blockquote>
+<p>删除snap</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt purge snapd</span><br></pre></td></tr></table></figure>
+<p>更新所有软件，安装驱动、x框架等kodi的依赖</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install ssh software-properties-common xorg xserver-xorg-legacy \</span><br><span class="line">alsa-utils mesa-utils git-core librtmp1 libmad0 lm-sensors libmpeg2-4 \</span><br><span class="line">avahi-daemon libnfs13 libva2 vainfo i965-va-driver linux-firmware dbus-x11 \</span><br><span class="line">udisks2 pastebinit udisks2 xserver-xorg-video-intel</span><br><span class="line">sudo apt-get upgrade</span><br></pre></td></tr></table></figure>
+<p>配置允许”everyone” 启动Xserver</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo dpkg-reconfigure xserver-xorg-legacy</span><br></pre></td></tr></table></figure>
+<p>新建kodi用户，并添加响应权限</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo adduser kodi</span><br><span class="line">sudo usermod -a -G cdrom,audio,video,plugdev,users,dialout,dip,input kodi</span><br></pre></td></tr></table></figure>
+<p>我这里是服务器不需要关机，所以这个不做</p>
+<p>编辑<code>/etc/polkit-1/localauthority/50-local.d/custom-actions.pkla</code>，添加以下内容使kodi可以重启和关机。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">[Actions for kodi user]</span><br><span class="line">Identity&#x3D;unix-user:kodi</span><br><span class="line">Action&#x3D;org.freedesktop.login1.*;org.freedesktop.udisks2.*</span><br><span class="line">ResultAny&#x3D;yes</span><br><span class="line">ResultInactive&#x3D;yes</span><br><span class="line">ResultActive&#x3D;yes</span><br><span class="line"></span><br><span class="line">[Untrusted Upgrade]</span><br><span class="line">Identity&#x3D;unix-user:kodi</span><br><span class="line">Action&#x3D;org.debian.apt.upgrade-packages;org.debian.apt.update-cache</span><br><span class="line">ResultAny&#x3D;yes</span><br><span class="line">ResultInactive&#x3D;yes</span><br><span class="line">ResultActive&#x3D;yes</span><br></pre></td></tr></table></figure>
+<p>添加kodi为服务，实现开机启动，这里直接是用kodi-standalone模式，这样只需要有X11就行了，可以省掉gnome、xface或者openbox之类的桌面环境。编辑<code>/etc/systemd/system/kodi.service</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[Unit]</span><br><span class="line">Description &#x3D; kodi-standalone using xinit</span><br><span class="line">After &#x3D; remote-fs.target systemd-user-sessions.service mysql.service</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">User &#x3D; kodi</span><br><span class="line">Group &#x3D; kodi</span><br><span class="line">Type &#x3D; simple</span><br><span class="line">ExecStart &#x3D; &#x2F;usr&#x2F;bin&#x2F;xinit &#x2F;usr&#x2F;bin&#x2F;dbus-launch &#x2F;usr&#x2F;bin&#x2F;kodi-standalone -- :0 -nolisten tcp</span><br><span class="line">Restart &#x3D; always</span><br><span class="line">RestartSec &#x3D; 30</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy &#x3D; multi-user.target</span><br></pre></td></tr></table></figure>
+<p>开机自动启动kodi</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo systemctl daemon-reload</span><br><span class="line">sudo systemctl enable kodi</span><br></pre></td></tr></table></figure>
+<h3 id="安装kodi"><a href="#安装kodi" class="headerlink" title="安装kodi"></a>安装kodi</h3><p>准备了这么多，终于开始安装kodi了。安装kodi是很简单的，几条命令搞定。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-add-repository ppa:team-xbmc&#x2F;ppa</span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get dist-upgrade</span><br><span class="line">sudo apt-get install kodi kodi-x11 kodi-pvr-iptvsimple</span><br><span class="line">sudo systemctl start kodi</span><br></pre></td></tr></table></figure>
+<h3 id="关于遥控"><a href="#关于遥控" class="headerlink" title="关于遥控"></a>关于遥控</h3><p>遥控是在同辈兄弟小熊家买的蓝宝石SAPPHIRE Theatrix电视卡附送的遥控器，比一般的HP之类的mce遥控便宜不少，当然代价是不能即插即用。直接插入电脑只能使用一部分按键。</p>
+<p><img src="https://qzxx.com/wp-content/uploads/2017/12/7968f8254805154.jpg" alt="蓝宝石电视卡遥控"></p>
+<p>当然这对于一名合格的垃圾佬，这不是什么难题。因为这个早已经有大神解决了，只需要站在巨人的肩膀上就能看得更远。下载Mark Lord大神的<a target="_blank" rel="noopener" href="http://rtr.ca/sapphire_remote/index.html">驱动</a>，编译上去即可。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install build-essential</span><br><span class="line">wget http:&#x2F;&#x2F;rtr.ca&#x2F;sapphire_remote&#x2F;sapphire-7.4.tar.gz</span><br><span class="line">tar xvf sapphire-7.4.tar.gz</span><br><span class="line">cd sapphire-7.4</span><br><span class="line">sudo make</span><br><span class="line">sudo make install</span><br></pre></td></tr></table></figure>
+<p>这个驱动是为MythTV制作的，要适配kodi的话还需要做一点点keymap的工作。</p>
+<p>附上我自己用的2个keymap文件，第一个是遥控器映射为键盘按键的配置，根据自己需求修改后用<code>sapphire_keymap.sh</code>来加载，第二个是修改kodi默认的键盘快捷键。</p>
+<p><a href="sapphire.keymap">/etc/sapphire.keymap</a></p>
+<p><a href="gen.xml">/home/kodi/.kodi/userdata/keymaps/gen.xml</a></p>
+<p>最后用这个sapphire的驱动覆盖系统自带的topseed驱动，开机自动加载keymap配置。</p>
+<p>编辑文件<code>/etc/systemd/system/sapphire.service</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[Unit]</span><br><span class="line">Description&#x3D;Sapphire remote start script</span><br><span class="line">Before&#x3D;kodi.service</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">Type&#x3D;oneshot</span><br><span class="line">ExecStart&#x3D;&#x2F;usr&#x2F;local&#x2F;bin&#x2F;sapphire_startup.sh</span><br><span class="line">RemainAfterExit&#x3D;yes</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy&#x3D;multi-user.target</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo systeem enable sapphire</span><br><span class="line">sudo systeem start sapphire</span><br></pre></td></tr></table></figure>
+<p>这样系统启动之后遥控器就直接可用了。</p>
+<p>参考：</p>
+<ul>
+<li><p><a target="_blank" rel="noopener" href="https://github.com/OnceUponALoop/mini-kodi">https://github.com/OnceUponALoop/mini-kodi</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://forum.kodi.tv/showthread.php?tid=231955">https://forum.kodi.tv/showthread.php?tid=231955</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://forum.kodi.tv/showthread.php?tid=231955&amp;page=339">https://forum.kodi.tv/showthread.php?tid=231955&amp;page=339</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://forum.kodi.tv/showthread.php?tid=333108&amp;page=2">https://forum.kodi.tv/showthread.php?tid=333108&amp;page=2</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://kodi.wiki/view/Keymap#Remotes">https://kodi.wiki/view/Keymap#Remotes</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://github.com/xbmc/xbmc/blob/master/system/keymaps/remote.xml">https://github.com/xbmc/xbmc/blob/master/system/keymaps/remote.xml</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://kodi.wiki/view/Using_an_MCE_remote">https://kodi.wiki/view/Using_an_MCE_remote</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://kodi.wiki/view/Keyboard_controls#Customizing_buttons_through_the_GUI">https://kodi.wiki/view/Keyboard_controls#Customizing_buttons_through_the_GUI</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="http://rtr.ca/sapphire_remote/index.html">http://rtr.ca/sapphire_remote/index.html</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://web.archive.org/web/20170714192652/http://kodi.wiki/view/Sapphire_Remote">https://web.archive.org/web/20170714192652/http://kodi.wiki/view/Sapphire_Remote</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://forum.libreelec.tv/thread/634-compile-sapphire-remote-driver/?pageNo=3">https://forum.libreelec.tv/thread/634-compile-sapphire-remote-driver/?pageNo=3</a></p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ubuntu/" rel="tag"># ubuntu</a>
+              <a href="/tags/kodi/" rel="tag"># kodi</a>
+              <a href="/tags/sapphire/" rel="tag"># sapphire</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/201709/bgpdump/" rel="prev" title="编译安装libbgpdump IRRToolset等BGP相关软件包">
+      <i class="fa fa-chevron-left"></i> 编译安装libbgpdump IRRToolset等BGP相关软件包
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">D2O</p>
+  <div class="site-description" itemprop="description">blog.d2okkk.net</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/conupefox" title="GitHub → https://github.com/conupefox" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto::d2o@d2okkk.net" title="E-Mail → mailto::d2o@d2okkk.net" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2007 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">D2O</span>
+</div>
+
+        
+
+
+
+
+
+
+<script>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = decodeURI(visitors.id);
+      var title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              Counter('post', '/classes/Counter', { title, url, time: 1 })
+                .then(response => response.json())
+                .then(() => {
+                  leancloudSelector(url).innerText = 1;
+                })
+                .catch(error => {
+                  console.error('Failed to create', error);
+                });
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            let target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    let { app_id, app_key, server_url } = {"enable":true,"app_id":"SYDjiw6UPzCjdiA8VmNPCtCY-gzGzoHsz","app_key":"FzX3nHM3RGxu1jDo8jA24wA8","server_url":null,"security":false};
+    function fetchData(api_server) {
+      var Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    let api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '7ed0d043553f2a84d736',
+      clientSecret: 'a3e18e362694db66619b46f5d79e0f4cd84ab640',
+      repo        : 'conupefox.github.io',
+      owner       : 'conupefox',
+      admin       : ['conupefox'],
+      id          : 'dc8052a713a56a9849871d3c956e13b7',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

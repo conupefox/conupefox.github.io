@@ -1,0 +1,11 @@
+<keymap>
+ <global>
+  <keyboard>
+   <f5>playpvrtv</f5>
+   <f1>ActivateWindow(TVChannels)</f1>
+   <f4>ActivateWindow(Videos)</f4>
+   <f2>ActivateWindow(Music)</f2>
+   <f3>ActivateWindow(Pictures)</f3>
+  </keyboard>
+ </global>
+</keymap>

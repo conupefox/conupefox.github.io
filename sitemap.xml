@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.d2okkk.net/202103/vxlan_evpn_with_frr/</loc>
+    
+    <lastmod>2021-03-15</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://blog.d2okkk.net/202101/kodi-setup/</loc>
     
     <lastmod>2021-01-16</lastmod>
@@ -46,7 +53,7 @@
 
   <url>
     <loc>http://blog.d2okkk.net/</loc>
-    <lastmod>2021-01-16</lastmod>
+    <lastmod>2021-03-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -54,49 +61,70 @@
   
   <url>
     <loc>http://blog.d2okkk.net/tags/bgp/</loc>
-    <lastmod>2021-01-16</lastmod>
+    <lastmod>2021-03-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://blog.d2okkk.net/tags/irr/</loc>
-    <lastmod>2021-01-16</lastmod>
+    <lastmod>2021-03-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://blog.d2okkk.net/tags/linux/</loc>
-    <lastmod>2021-01-16</lastmod>
+    <lastmod>2021-03-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://blog.d2okkk.net/tags/centos/</loc>
-    <lastmod>2021-01-16</lastmod>
+    <lastmod>2021-03-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://blog.d2okkk.net/tags/ubuntu/</loc>
-    <lastmod>2021-01-16</lastmod>
+    <lastmod>2021-03-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://blog.d2okkk.net/tags/kodi/</loc>
-    <lastmod>2021-01-16</lastmod>
+    <lastmod>2021-03-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://blog.d2okkk.net/tags/sapphire/</loc>
-    <lastmod>2021-01-16</lastmod>
+    <lastmod>2021-03-15</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://blog.d2okkk.net/tags/openwrt/</loc>
+    <lastmod>2021-03-15</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://blog.d2okkk.net/tags/vxlan/</loc>
+    <lastmod>2021-03-15</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://blog.d2okkk.net/tags/frr/</loc>
+    <lastmod>2021-03-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
@@ -105,14 +133,14 @@
   
   <url>
     <loc>http://blog.d2okkk.net/categories/%E7%B3%BB%E7%BB%9F/</loc>
-    <lastmod>2021-01-16</lastmod>
+    <lastmod>2021-03-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://blog.d2okkk.net/categories/Home-Lab/</loc>
-    <lastmod>2021-01-16</lastmod>
+    <lastmod>2021-03-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>

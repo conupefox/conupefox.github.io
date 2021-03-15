@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.d2okkk.net","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="前言：本文主要介绍了如何使用Openwrt 官方SDK编译最新版FRR，并使用FRRouting建立VXLAN EVPN网络，实现异地组网。 基本拓扑 1234567891011121314                              +-+--+-+      +-----Internet----------++|RR|++---------Internet-------+">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于VXLAN EVPN的异地组网">
+<meta property="og:url" content="http://blog.d2okkk.net/202103/vxlan_evpn_with_frr/index.html">
+<meta property="og:site_name" content="D2O | 重水">
+<meta property="og:description" content="前言：本文主要介绍了如何使用Openwrt 官方SDK编译最新版FRR，并使用FRRouting建立VXLAN EVPN网络，实现异地组网。 基本拓扑 1234567891011121314                              +-+--+-+      +-----Internet----------++|RR|++---------Internet-------+">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-03-15T11:52:57.000Z">
+<meta property="article:modified_time" content="2021-03-15T13:57:14.000Z">
+<meta property="article:author" content="D2O">
+<meta property="article:tag" content="openwrt">
+<meta property="article:tag" content="vxlan">
+<meta property="article:tag" content="frr">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://blog.d2okkk.net/202103/vxlan_evpn_with_frr/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>基于VXLAN EVPN的异地组网 | D2O | 重水</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-105973717-1"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-105973717-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="D2O | 重水" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">D2O | 重水</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">恭喜您发现本站!</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://blog.d2okkk.net/202103/vxlan_evpn_with_frr/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="D2O">
+      <meta itemprop="description" content="blog.d2okkk.net">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="D2O | 重水">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          基于VXLAN EVPN的异地组网
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-03-15 19:52:57 / 修改时间：21:57:14" itemprop="dateCreated datePublished" datetime="2021-03-15T19:52:57+08:00">2021-03-15</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Home-Lab/" itemprop="url" rel="index"><span itemprop="name">Home Lab</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/202103/vxlan_evpn_with_frr/" class="post-meta-item leancloud_visitors" data-flag-title="基于VXLAN EVPN的异地组网" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h3><p>本文主要介绍了如何使用<a target="_blank" rel="noopener" href="https://www.openwrt.org/">Openwrt</a> 官方SDK编译最新版FRR，并使用<a target="_blank" rel="noopener" href="https://frrouting.org/">FRRouting</a>建立VXLAN EVPN网络，实现异地组网。</p>
+<p>基本拓扑</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">                              +-+--+-+</span><br><span class="line">      +-----Internet----------++|RR|++---------Internet-------+</span><br><span class="line">      |                       +-+--+-+                        |</span><br><span class="line">      |                                                       |</span><br><span class="line">      |                                                       |</span><br><span class="line">      |                                                       |</span><br><span class="line">      |                                                       |</span><br><span class="line">      |                                                       |</span><br><span class="line">+-----+--------+                                        +-----+-------+</span><br><span class="line">|   eth0.2     |                                        |   eth0.2    |</span><br><span class="line">|       eth0.46+---------Private-----10.0.0.0&#x2F;7---------+eth0.46      |</span><br><span class="line">|    Site1     |                                        |    Site2    |</span><br><span class="line">+--------------+                                        +-------------+</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>说明：</p>
+<p>Site 1与Site2之间有内网，接口eth0.46。不同网段，路由可达。ip范围10.0.0.0/7，dhcp动态获取。</p>
+<p>RR是公网上拥有固定ip地址的服务器，Site 1和Site2使用eth0.2连接公网。</p>
+<p>RR负责为Site 1和Site 2交换MAC地址信息。Site 1与Site 2互访使用内网流量。</p>
+<a id="more"></a>
+
+<h3 id="交叉编译FRRouting"><a href="#交叉编译FRRouting" class="headerlink" title="交叉编译FRRouting"></a>交叉编译FRRouting</h3><p>目前最新版的Openwrt仍然未集成FRRouting，需要进行交叉编译。如果是普通的Linux发行版，可以使用二进制安装。以MT7620平台为例，首先使用docker建立openwrt编译环境。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;mwarning&#x2F;docker-openwrt-builder.git</span><br><span class="line">cd docker-openwrt-builder</span><br><span class="line">docker build -t openwrt_builder .</span><br><span class="line">mkdir ~&#x2F;mybuild</span><br><span class="line">docker run -v ~&#x2F;mybuild:&#x2F;home&#x2F;user -it openwrt_builder &#x2F;bin&#x2F;bash</span><br></pre></td></tr></table></figure>
+<p>下载官方最新稳定版本的SDK，解压</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https:&#x2F;&#x2F;downloads.openwrt.org&#x2F;releases&#x2F;19.07.7&#x2F;targets&#x2F;ramips&#x2F;mt7620&#x2F;openwrt-sdk-19.07.7-ramips-mt7620_gcc-7.5.0_musl.Linux-x86_64.tar.xz</span><br><span class="line">tar xvf openwrt-sdk-19.07.7-ramips-mt7620_gcc-7.5.0_musl.Linux-x86_64.tar.xz</span><br></pre></td></tr></table></figure>
+<p>使用master的feeds</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cd openwrt-sdk-19.07.7-ramips-mt7620_gcc-7.5.0_musl.Linux-x86_64</span><br><span class="line">cat &lt;&lt; EOF &gt;feeds.conf</span><br><span class="line">src-git base https:&#x2F;&#x2F;git.openwrt.org&#x2F;openwrt&#x2F;openwrt.git</span><br><span class="line">src-git packages https:&#x2F;&#x2F;git.openwrt.org&#x2F;feed&#x2F;packages.git</span><br><span class="line">src-git routing https:&#x2F;&#x2F;git.openwrt.org&#x2F;feed&#x2F;routing.git</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+<p>更新feeds，安装frr</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;scripts&#x2F;feeds update -a</span><br><span class="line">.&#x2F;scripts&#x2F;feeds install frr</span><br></pre></td></tr></table></figure>
+<p>生成一对密钥，为后续编译出来的ipk签名</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;staging_dir&#x2F;host&#x2F;bin&#x2F;usign -G -s .&#x2F;key-build -p .&#x2F;key-build.pub -c &quot;D2O Local build key&quot;</span><br></pre></td></tr></table></figure>
+<p>万事具备，就可以开始make了</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make package&#x2F;frr&#x2F;compile V&#x3D;s</span><br></pre></td></tr></table></figure>
+<p>如无意外，经过一段稍微有点长的时间，就编译完成了。编译完成后会发现bin目录里面多了很多ipk包。这个时候需要用密钥对ipk包进行签名，并生成index。最后把bin目录里面的内容放到一个能够使用http访问的地方。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">make package&#x2F;index V&#x3D;s</span><br><span class="line">cp key-build.pub &#x2F;var&#x2F;www&#x2F;nginx&#x2F;html&#x2F;d2o_fun.pub</span><br><span class="line">cp -R .&#x2F;bin&#x2F;* &#x2F;var&#x2F;www&#x2F;nginx&#x2F;html&#x2F;</span><br></pre></td></tr></table></figure>
+<h3 id="路由器安装FRR"><a href="#路由器安装FRR" class="headerlink" title="路由器安装FRR"></a>路由器安装FRR</h3><p>来到路由器上安装frr，添加公钥，添加自定义的软件源。然后opkg安装就好了</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">wget https:&#x2F;&#x2F;d2o.fun&#x2F;19.07.7&#x2F;d2o_fun.pub</span><br><span class="line">opkg-key add d2o_fun.pub</span><br><span class="line">cat &lt;&lt; EOF &gt;&#x2F;etc&#x2F;opkg&#x2F;d2o.conf</span><br><span class="line">src&#x2F;gz d2o_base https:&#x2F;&#x2F;d2o.fun&#x2F;19.07.7&#x2F;packages&#x2F;mipsel_24kc&#x2F;base</span><br><span class="line">src&#x2F;gz d2o_packages https:&#x2F;&#x2F;d2o.fun&#x2F;19.07.7&#x2F;packages&#x2F;mipsel_24kc&#x2F;packages</span><br><span class="line">EOF</span><br><span class="line">opkg update</span><br><span class="line">opkg install frr frr-vtysh frr-zebra frr-bgpd frr-watchfrr frr-staticd kmod-vxlan ip ip-bridge</span><br></pre></td></tr></table></figure>
+<h3 id="Route-Reflector的配置"><a href="#Route-Reflector的配置" class="headerlink" title="Route Reflector的配置"></a>Route Reflector的配置</h3><p>Route Reflector(RR)是在公网上拥有固定IP的云主机，直接使用二进制包安装FRR就行了。配置也是参照Vincent大神的。只是BGP直接listen全网。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">vtysh</span><br><span class="line">conf t</span><br><span class="line">router bgp 65005</span><br><span class="line"> neighbor ixp peer-group</span><br><span class="line"> neighbor ixp remote-as external</span><br><span class="line"> neighbor ixp ebgp-multihop 30</span><br><span class="line"> neighbor ixp update-source x.x.x.x(云主机的公网地址)</span><br><span class="line"> neighbor ixp capability extended-nexthop</span><br><span class="line"> bgp listen range 0.0.0.0&#x2F;0 peer-group ixp</span><br><span class="line">  address-family l2vpn evpn</span><br><span class="line">  neighbor ixp activate</span><br><span class="line">  advertise-all-vni</span><br><span class="line">  advertise-svi-ip</span><br><span class="line"> exit-address-family</span><br></pre></td></tr></table></figure>
+<h3 id="Site1和Site2的配置"><a href="#Site1和Site2的配置" class="headerlink" title="Site1和Site2的配置"></a>Site1和Site2的配置</h3><p>安装好FRR之后先编辑<code>/etc/frr/daemons</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bgpd&#x3D;yes</span><br></pre></td></tr></table></figure>
+<p>然后就可以开启frr进程了</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;etc&#x2F;init.d&#x2F;frr start</span><br></pre></td></tr></table></figure>
+<p>配置bgp l2vpn，其中x.x.x.x是RR的公网地址</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">vtysh</span><br><span class="line">conf t</span><br><span class="line">router bgp 65008(ASN不重要，只要和RR不一样，组成eBGP就行，因为只有eBGP才支持multihop)</span><br><span class="line"> neighbor x.x.x.x remote-as external</span><br><span class="line"> neighbor x.x.x.x ebgp-multihop 30</span><br><span class="line"> neighbor x.x.x.x capability extended-nexthop</span><br><span class="line">  address-family l2vpn evpn</span><br><span class="line">  neighbor x.x.x.x activate</span><br><span class="line">  advertise-all-vni</span><br><span class="line">  advertise-svi-ip</span><br><span class="line"> exit-address-family</span><br></pre></td></tr></table></figure>
+<p>配置完成后会发现BGP会话无法起来，先排除RR的TCP179端口是否已打开。</p>
+<p>回到<code>frr</code>会<code>show bgp neighbor x.x.x.x</code>发现neighbor一直在<em>Waiting for NHT</em></p>
+<p>说明需要添加RR的主机路由到默认网关。</p>
+<p>如果Openwrt是静态ip上网，在luci web里面添加静态路由就可以了。类似这样<code>/etc/config/network</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">config route</span><br><span class="line">        option interface &#39;wan&#39;</span><br><span class="line">        option target &#39;x.x.x.x&#39;</span><br><span class="line">        option gateway &#39;192.168.1.1&#39;</span><br></pre></td></tr></table></figure>
+<p>如是PPPOE拨号，就需要使用到ppp-up脚本添加主机路由。<code>/etc/ppp/ip-up.d/pppoe.sh </code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">#!&#x2F;bin&#x2F;sh</span><br><span class="line"></span><br><span class="line"># parameters</span><br><span class="line"># $1 the interface name used by pppd (e.g. ppp3)</span><br><span class="line"># $2 the tty device name</span><br><span class="line"># $3 the tty device speed</span><br><span class="line"># $4 the local IP address for the interface</span><br><span class="line"># $5 the remote IP address</span><br><span class="line"># $6 the parameter specified by the &#39;ipparam&#39; option to pppd</span><br><span class="line"></span><br><span class="line">echo $@ &gt;&#x2F;tmp&#x2F;ppp_parameters</span><br><span class="line"></span><br><span class="line">PPP_FW&#x3D;&#x2F;tmp&#x2F;firewall.pppoe</span><br><span class="line">gateway_length&#x3D;&#96;expr length $5&#96;</span><br><span class="line">echo $&#123;gateway_length&#125;</span><br><span class="line">GW&#x3D;$5</span><br><span class="line">LOCAL_IP&#x3D;$4</span><br><span class="line">DEV&#x3D;$1</span><br><span class="line"></span><br><span class="line">case &quot;$1&quot; in</span><br><span class="line">pppoe-wan)</span><br><span class="line">if [ $&#123;gateway_length&#125; -le 15 ]; then</span><br><span class="line">  echo IPv4</span><br><span class="line">  ip route add x.x.x.x via $GW dev $DEV</span><br><span class="line">else                    </span><br><span class="line">  echo &quot;IPV6 or Unrecognized IP format &#39;$5&#39;&quot;</span><br><span class="line">fi </span><br><span class="line">;;</span><br><span class="line">*)</span><br><span class="line">;;</span><br><span class="line">esac</span><br></pre></td></tr></table></figure>
+<h3 id="VXLAN接口的配置"><a href="#VXLAN接口的配置" class="headerlink" title="VXLAN接口的配置"></a>VXLAN接口的配置</h3><p>把BGP Session搞up之后，就可以配置VXLAN接口了。我这里使用VNI 5，VNI由24比特组成，可以支持16M的子网。只要2个site的VNI相同就可以互相通信。在这里我分配了一个Overlay使用的互联地址段100.69.0.0/24。</p>
+<p>登录LUCI WEB，选择网络—接口，新建接口</p>
+<p>两个site分别使用静态地址100.69.0.1/24和100.69.0.2/24，创建桥接到vxlan5，mtu 1450。</p>
+<p>由于Site1和Site2之间的私网是通过dhcp获取地址的，使用<code>/etc/udhcpc.user </code>脚本来触发建立隧道。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">#!&#x2F;bin&#x2F;sh</span><br><span class="line">case &quot;$1&quot; in</span><br><span class="line">bound)</span><br><span class="line">if [ eth0.46 &#x3D; &quot;$&#123;interface&#125;&quot; ]; then</span><br><span class="line">ip route add 10.0.0.0&#x2F;7 via $&#123;router&#125;</span><br><span class="line">ip link del vxlan5</span><br><span class="line">ip link add vxlan5 type vxlan id 5 local $&#123;ip&#125; dstport 4789</span><br><span class="line">fi</span><br><span class="line">;;</span><br><span class="line">esac</span><br><span class="line">exit 0</span><br></pre></td></tr></table></figure>
+<p>别忘了在防火墙开启UDP 4789，如无意外100.69.0.1和100.69.0.2就可以互相ping通了。</p>
+<p>在Site1和Site2的frr上使用<code>show bgp l2vpn evpn </code>可以看到从RR学习到的Type2和Type3的路由。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">OpenWrt# show bgp l2vpn evpn </span><br><span class="line">BGP table version is 0, local router ID is 198.18.22.130</span><br><span class="line">Status codes: s suppressed, d damped, h history, * valid, &gt; best, i - internal</span><br><span class="line">Origin codes: i - IGP, e - EGP, ? - incomplete</span><br><span class="line">EVPN type-1 prefix: [1]:[ESI]:[EthTag]:[IPlen]:[VTEP-IP]</span><br><span class="line">EVPN type-2 prefix: [2]:[EthTag]:[MAClen]:[MAC]:[IPlen]:[IP]</span><br><span class="line">EVPN type-3 prefix: [3]:[EthTag]:[IPlen]:[OrigIP]</span><br><span class="line">EVPN type-4 prefix: [4]:[ESI]:[IPlen]:[OrigIP]</span><br><span class="line">EVPN type-5 prefix: [5]:[EthTag]:[IPlen]:[IP]</span><br><span class="line"></span><br><span class="line">   Network          Next Hop            Metric LocPrf Weight Path</span><br><span class="line">Route Distinguisher: 198.18.8.244:2</span><br><span class="line">*&gt; [2]:[0]:[48]:[f6:96:37:a3:82:8f]:[32]:[100.69.0.2]</span><br><span class="line">                    11.92.111.32                           0 65005 65008 i</span><br><span class="line">                    RT:65008:5 ET:8</span><br><span class="line">*&gt; [2]:[0]:[48]:[f6:96:37:a3:82:8f]:[128]:[fe80::f496:37ff:fea3:828f]</span><br><span class="line">                    11.92.111.32                           0 65005 65008 i</span><br><span class="line">                    RT:65008:5 ET:8</span><br><span class="line">*&gt; [3]:[0]:[32]:[11.92.111.32]</span><br><span class="line">                    11.92.111.32                           0 65005 65008 i</span><br><span class="line">                    RT:65008:5 ET:8</span><br><span class="line">Route Distinguisher: 198.18.22.130:2</span><br><span class="line">*&gt; [2]:[0]:[48]:[4a:73:1d:22:4c:e3]:[32]:[100.69.0.1]</span><br><span class="line">                    11.94.117.77                       32768 i</span><br><span class="line">                    ET:8 RT:65022:5</span><br><span class="line">*&gt; [2]:[0]:[48]:[4a:73:1d:22:4c:e3]:[128]:[fe80::4873:1dff:fe22:4ce3]</span><br><span class="line">                    11.94.117.77                       32768 i</span><br><span class="line">                    ET:8 RT:65022:5</span><br><span class="line">*&gt; [3]:[0]:[32]:[11.94.117.77]</span><br><span class="line">                    11.94.117.77                       32768 i</span><br><span class="line">                    ET:8 RT:65022:5</span><br></pre></td></tr></table></figure>
+
+
+
+
+<p>参考：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/mwarning/docker-openwrt-builder">https://github.com/mwarning/docker-openwrt-builder</a></li>
+<li><a target="_blank" rel="noopener" href="https://asciiflow.com/#/">https://asciiflow.com/#/</a></li>
+<li><a target="_blank" rel="noopener" href="https://vincent.bernat.ch/en/blog/2017-vxlan-linux">https://vincent.bernat.ch/en/blog/2017-vxlan-linux</a></li>
+<li><a target="_blank" rel="noopener" href="https://forum.openwrt.org/t/cant-compile-ipk-with-sdk-key-build-signing-key-is-missing/2266/2">https://forum.openwrt.org/t/cant-compile-ipk-with-sdk-key-build-signing-key-is-missing/2266/2</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/openwrt/" rel="tag"># openwrt</a>
+              <a href="/tags/vxlan/" rel="tag"># vxlan</a>
+              <a href="/tags/frr/" rel="tag"># frr</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/202101/kodi-setup/" rel="prev" title="Ubuntu Server 20.04 LTS 最小安装kodi">
+      <i class="fa fa-chevron-left"></i> Ubuntu Server 20.04 LTS 最小安装kodi
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">D2O</p>
+  <div class="site-description" itemprop="description">blog.d2okkk.net</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/conupefox" title="GitHub → https://github.com/conupefox" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto::d2o@d2okkk.net" title="E-Mail → mailto::d2o@d2okkk.net" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2007 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">D2O</span>
+</div>
+
+        
+
+
+
+
+
+
+<script>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = decodeURI(visitors.id);
+      var title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              Counter('post', '/classes/Counter', { title, url, time: 1 })
+                .then(response => response.json())
+                .then(() => {
+                  leancloudSelector(url).innerText = 1;
+                })
+                .catch(error => {
+                  console.error('Failed to create', error);
+                });
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            let target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    let { app_id, app_key, server_url } = {"enable":true,"app_id":"SYDjiw6UPzCjdiA8VmNPCtCY-gzGzoHsz","app_key":"FzX3nHM3RGxu1jDo8jA24wA8","server_url":null,"security":false};
+    function fetchData(api_server) {
+      var Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    let api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '7ed0d043553f2a84d736',
+      clientSecret: 'a3e18e362694db66619b46f5d79e0f4cd84ab640',
+      repo        : 'conupefox.github.io',
+      owner       : 'conupefox',
+      admin       : ['conupefox'],
+      id          : '175c0447a18d8c4ffb2a8361904ec0a2',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

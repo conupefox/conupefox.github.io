@@ -6,6 +6,7 @@
    <f4>ActivateWindow(Videos)</f4>
    <f2>ActivateWindow(Music)</f2>
    <f3>ActivateWindow(Pictures)</f3>
+   <g>AudioNextLanguage</g>
   </keyboard>
  </global>
 </keymap>

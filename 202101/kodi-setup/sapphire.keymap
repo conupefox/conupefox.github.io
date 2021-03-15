@@ -41,8 +41,8 @@
 #
 SAPPHIRE_UP              KEY_UP           RAMP_REPEAT                  ## up    (CUSTOM)
 SAPPHIRE_DOWN            KEY_DOWN         RAMP_REPEAT                  ## down  (CUSTOM)
-SAPPHIRE_RIGHT           KEY_RIGHT        SLOW_REPEAT                  ## right
-SAPPHIRE_LEFT            KEY_LEFT         SLOW_REPEAT                  ## left
+SAPPHIRE_RIGHT           KEY_RIGHT        RAMP_REPEAT                  ## right
+SAPPHIRE_LEFT            KEY_LEFT         RAMP_REPEAT                  ## left
 SAPPHIRE_ENTEROK         KEY_ENTER        LONGKEY|KEY_F15              ## Select (tap) or Audiosync (hold)
 SAPPHIRE_BACK            KEY_BACKSPACE    SLOW_REPEAT                  ## Back
 SAPPHIRE_PLAY            KEY_P            NO_REPEAT                    ## Play/Pause
@@ -51,21 +51,21 @@ SAPPHIRE_VOLUP           KEY_EQUAL        FAST_REPEAT                  ## Volume
 SAPPHIRE_VOLDOWN         KEY_MINUS        FAST_REPEAT                  ## Volume Down
 SAPPHIRE_CHUP            KEY_PAGEUP       SLOW_REPEAT                  ## channel up    (CUSTOM)
 SAPPHIRE_CHDOWN          KEY_PAGEDOWN     SLOW_REPEAT                  ## channel down  (CUSTOM)
-SAPPHIRE_MUTE            KEY_F8           NO_REPEAT                    ## Mute
+SAPPHIRE_MUTE            KEY_F8           SLOW_REPEAT                  ## Mute
 SAPPHIRE_RECORD          KEY_R            NO_REPEAT                    ## Record/Delete (CUSTOM)
-SAPPHIRE_FWD             KEY_DOT          NO_REPEAT                    ## FFwd
-SAPPHIRE_REW             KEY_COMMA        NO_REPEAT                    ## Rewind
+SAPPHIRE_FWD             KEY_DOT          RAMP_REPEAT                  ## FFwd
+SAPPHIRE_REW             KEY_COMMA        RAMP_REPEAT                  ## Rewind
 SAPPHIRE_ANGLE           KEY_O            NO_REPEAT                    ## Player process info
 SAPPHIRE_SAP             KEY_Z            NO_REPEAT                    ## Display info
 SAPPHIRE_DVDMENU         KEY_M            NO_REPEAT                    ## Menu
 SAPPHIRE_INFOEPG         KEY_I            NO_REPEAT                    ## Info
 SAPPHIRE_TAB             KEY_END          SLOW_REPEAT                  ## Commskip Fwd
 SAPPHIRE_BACKTAB         KEY_HOME         SLOW_REPEAT                  ## Commskip Rev
-SAPPHIRE_RADIO           KEY_RADIO        NO_REPEAT                    ## Signal Monitor
+SAPPHIRE_RADIO           KEY_F7           NO_REPEAT                    ## Signal Monitor
 SAPPHIRE_LASTCH          KEY_0            NO_REPEAT                    ## previous chan
-SAPPHIRE_LANGUAGE        KEY_LANGUAGE     NO_REPEAT                    ## Next Audio Track
-SAPPHIRE_TELETEXTCC      KEY_V            NO_REPEAT                    ## Teletext
-SAPPHIRE_SUBTITLE        KEY_SUBTITLE     NO_REPEAT                    ## Next subtitle
+SAPPHIRE_LANGUAGE        KEY_G            SLOW_REPEAT                  ## Next Audio Track
+SAPPHIRE_TELETEXTCC      KEY_V            SLOW_REPEAT                  ## Teletext
+SAPPHIRE_SUBTITLE        KEY_L            SLOW_REPEAT                  ## Next subtitle
 SAPPHIRE_HOMEHOUSE       KEY_ESC          NO_REPEAT                    ## jump to MainMenu
 SAPPHIRE_BLUEVIDEOS      KEY_F4           NO_REPEAT                    ## Video
 SAPPHIRE_LIVETV          KEY_F5           NO_REPEAT                    ## Play LiveTV
@@ -83,8 +83,8 @@ SAPPHIRE_9               KEY_9            SLOW_REPEAT                  ## 9
 SAPPHIRE_0               KEY_0            SLOW_REPEAT                  ## 0
 SAPPHIRE_STOP            KEY_X            NO_REPEAT                    ## Stop
 SAPPHIRE_POWER           KEY_S            NO_REPEAT                    ## restart kodi
-SAPPHIRE_CLEAR           KEY_MACRO_0      NO_REPEAT                    ## Adjust audiosync by 90msecs (see below)
-SAPPHIRE_GREENMUSIC      KEY_F2        NO_REPEAT                    ## Music
+SAPPHIRE_CLEAR           KEY_BACKSPACE    SLOW_REPEAT                  ## Adjust audiosync by 90msecs (see below)
+SAPPHIRE_GREENMUSIC      KEY_F2           NO_REPEAT                    ## Music
 
 #
 # Now for the macro definitions: each macro sends a list of up to eight keycodes:

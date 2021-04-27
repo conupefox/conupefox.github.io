@@ -20,21 +20,24 @@
     var CONFIG = {"hostname":"blog.d2okkk.net","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="我是谁我是D2O，又叫重水，又叫Conupe Fox(简称Fox)。 关于本站由于之前的网站 http:&#x2F;&#x2F;blog.csdn.net&#x2F;conupefox 没实名，现在已经无法登录了。以后有什么东西都在这里记录，以前的东西也可能会搬过来。 为什么用hexo因为github pages免费，但愿稳定吧。">
-<meta property="og:type" content="website">
-<meta property="og:title" content="关于我">
-<meta property="og:url" content="http://blog.d2okkk.net/about/index.html">
+  <meta name="description" content="前言：本文主要介绍Proxmox VE 6.3的安装配置和利用Clover实现NVME SSD引导。 最近发现运行了2年的All in one小主机硬盘出现了坏道，于是萌生了重装+升级的想法，为了日后易于查找记录一下过程。 HTPC硬件平台（升级后） J1800+16G RAM+128G NVME SSD + 500G机械">
+<meta property="og:type" content="article">
+<meta property="og:title" content="All in one小主机重装实录--Proxmox VE 6.3安装配置">
+<meta property="og:url" content="http://blog.d2okkk.net/202104/j1800_setup_1/index.html">
 <meta property="og:site_name" content="D2O | 重水">
-<meta property="og:description" content="我是谁我是D2O，又叫重水，又叫Conupe Fox(简称Fox)。 关于本站由于之前的网站 http:&#x2F;&#x2F;blog.csdn.net&#x2F;conupefox 没实名，现在已经无法登录了。以后有什么东西都在这里记录，以前的东西也可能会搬过来。 为什么用hexo因为github pages免费，但愿稳定吧。">
+<meta property="og:description" content="前言：本文主要介绍Proxmox VE 6.3的安装配置和利用Clover实现NVME SSD引导。 最近发现运行了2年的All in one小主机硬盘出现了坏道，于是萌生了重装+升级的想法，为了日后易于查找记录一下过程。 HTPC硬件平台（升级后） J1800+16G RAM+128G NVME SSD + 500G机械">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://blog.d2okkk.net/images/pichu.gif">
-<meta property="article:published_time" content="2017-09-05T06:46:26.000Z">
-<meta property="article:modified_time" content="2017-09-05T14:06:43.017Z">
+<meta property="article:published_time" content="2021-04-27T04:24:57.000Z">
+<meta property="article:modified_time" content="2021-04-27T12:47:49.000Z">
 <meta property="article:author" content="D2O">
+<meta property="article:tag" content="proxmox ve">
+<meta property="article:tag" content="clover">
+<meta property="article:tag" content="uefi">
+<meta property="article:tag" content="debian">
+<meta property="article:tag" content="pve">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://blog.d2okkk.net/images/pichu.gif">
 
-<link rel="canonical" href="http://blog.d2okkk.net/about/">
+<link rel="canonical" href="http://blog.d2okkk.net/202104/j1800_setup_1/">
 
 
 <script id="page-configurations">
@@ -42,13 +45,12 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : false,
+    isPost : true,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>关于我 | D2O | 重水
-</title>
+  <title>All in one小主机重装实录--Proxmox VE 6.3安装配置 | D2O | 重水</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-105973717-1"></script>
     <script>
@@ -171,46 +173,141 @@
       <div class="main-inner">
         <div class="content-wrap">
           
-  
-  
 
-          <div class="content page posts-expand">
+          <div class="content post posts-expand">
             
 
     
-    
-    
-    <div class="post-block" lang="zh-CN">
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://blog.d2okkk.net/202104/j1800_setup_1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="D2O">
+      <meta itemprop="description" content="blog.d2okkk.net">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="D2O | 重水">
+    </span>
       <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          All in one小主机重装实录--Proxmox VE 6.3安装配置
+        </h1>
 
-<h1 class="post-title" itemprop="name headline">关于我
-</h1>
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
 
-<div class="post-meta">
+              <time title="创建时间：2021-04-27 12:24:57 / 修改时间：20:47:49" itemprop="dateCreated datePublished" datetime="2021-04-27T12:24:57+08:00">2021-04-27</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Home-Lab/" itemprop="url" rel="index"><span itemprop="name">Home Lab</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/202104/j1800_setup_1/" class="post-meta-item leancloud_visitors" data-flag-title="All in one小主机重装实录--Proxmox VE 6.3安装配置" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h3><p>本文主要介绍Proxmox VE 6.3的安装配置和利用Clover实现NVME SSD引导。</p>
+<p>最近发现运行了2年的All in one小主机硬盘出现了坏道，于是萌生了重装+升级的想法，为了日后易于查找记录一下过程。</p>
+<p>HTPC硬件平台（升级后） J1800+16G RAM+128G NVME SSD + 500G机械</p>
+<a id="more"></a>
+
+<h3 id="Proxmox-VE-6-3"><a href="#Proxmox-VE-6-3" class="headerlink" title="Proxmox VE 6.3"></a>Proxmox VE 6.3</h3><p>PVE的安装应该大致就是官网下载iso，然后<a target="_blank" rel="noopener" href="https://www.balena.io/etcher/">balenaEtcher</a>写入U盘引导安装。值得注意的是，因为是把安装到NVME SSD，所以用UEFI+GPT引导会比较方便。</p>
+<p>为了最大化利用NVME SSD空间，安装PVE的时候需要分区大小需要设置一下。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">swap 4G 交换空间，由于内存有16G，J1800弱鸡的性能估计用不到swap，但是安装程序规定最少4G。</span><br><span class="line">minfree 0 不要预留任何空间，这样安装完之后就不会存在未分配的空间。</span><br></pre></td></tr></table></figure>
+<h3 id="Clover引导"><a href="#Clover引导" class="headerlink" title="Clover引导"></a>Clover引导</h3><p>Clover是著名的黑苹果引导工具。本质上是一个模拟UEFI的软件，利用Clover可以实现老主板支持UEFI引导，免刷BIOS NVME SSD引导。我这里 J1800的小主板是支持UEFI的，但是没有UEFI里面NVME的驱动，无法从NVME SSD引导系统。刷BIOS固然是可以实现，但是借助Clover来引导比刷BIOS更方便，只需要一个小U盘就足够了。</p>
+<p>制作方法是参照B站大佬<a target="_blank" rel="noopener" href="https://www.bilibili.com/read/cv5496032/">lwyx2017</a> 的，他说得比较细致。大致过程就是</p>
+<ul>
+<li>下载最新版的<a target="_blank" rel="noopener" href="https://github.com/CloverHackyColor/CloverBootloader/releases/">CloverBootloader</a>用 Clover-xxxx-X64.iso.7z那个文件。</li>
+<li>用<a target="_blank" rel="noopener" href="http://cvad-mac.narod.ru/index/bootdiskutility_exe/0-5">Boot Disk Utility</a> 这个工具把Clover写入到U盘，这个工具里面也可以自动从github下载到最新版本的CloverBootloader。其实原理就把U盘格式化成FAT32的分区，然后里面有个EFI的文件夹，是UEFI的标准引导方式。</li>
+<li>打开U盘，找到目录EFI\CLOVER\drivers\off下面的NvmExpressDxe.efi那个文件，把他复制到EFI\CLOVER\drivers\BIOS和EFI\CLOVER\drivers\UEFI 两个地方。目的是让Clover加载NVME驱动，识别NVME SSD</li>
+</ul>
+<p>由于PVE是使用UEFI引导安装的，安装完成后NVME SSD里面已经自动分好了EFI分区。Clover U盘制作完成之后，直接插到J1800上就可以直接引导进入PVE了。</p>
+<h3 id="PVE配置国内的Debain源和PVE源"><a href="#PVE配置国内的Debain源和PVE源" class="headerlink" title="PVE配置国内的Debain源和PVE源"></a>PVE配置国内的Debain源和PVE源</h3><p>由于种种原因，官方的apt源总是非常慢，换成国内科大的源，速度可以起飞。</p>
+<p>国内源是用<a target="_blank" rel="noopener" href="https://mirrors.ustc.edu.cn/">中国科学技术大学</a>的比较靠谱。</p>
+<p>如果用阿里、腾讯、163速度慢不说，还经常有莫名奇妙的问题。还不如用官方源+特殊方式上网好。</p>
+<p>编辑<code>/etc/apt/sources.list</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">deb https:&#x2F;&#x2F;mirrors.ustc.edu.cn&#x2F;debian&#x2F; buster main non-free contrib</span><br><span class="line">deb-src https:&#x2F;&#x2F;mirrors.ustc.edu.cn&#x2F;debian&#x2F; buster main non-free contrib</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.ustc.edu.cn&#x2F;debian-security buster&#x2F;updates main</span><br><span class="line">deb-src https:&#x2F;&#x2F;mirrors.ustc.edu.cn&#x2F;debian-security buster&#x2F;updates main</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.ustc.edu.cn&#x2F;debian&#x2F; buster-updates main non-free contrib</span><br><span class="line">deb-src https:&#x2F;&#x2F;mirrors.ustc.edu.cn&#x2F;debian&#x2F; buster-updates main non-free contrib</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.ustc.edu.cn&#x2F;debian&#x2F; buster-backports main non-free contrib</span><br><span class="line">deb-src https:&#x2F;&#x2F;mirrors.ustc.edu.cn&#x2F;debian&#x2F; buster-backports main non-free contrib</span><br><span class="line"></span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.ustc.edu.cn&#x2F;proxmox&#x2F;debian&#x2F;pve buster pve-no-subscription</span><br></pre></td></tr></table></figure>
+<p>删除PVE企业源</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rm -rf &#x2F;etc&#x2F;apt&#x2F;sources.list.d&#x2F;pve-enterprise.list</span><br></pre></td></tr></table></figure>
+<p>最后执行升级</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">apt update</span><br><span class="line">apt update&amp;&amp;apt dist-upgrade </span><br></pre></td></tr></table></figure>
+<h3 id="删掉lvm-thin-存储池"><a href="#删掉lvm-thin-存储池" class="headerlink" title="删掉lvm-thin 存储池"></a>删掉lvm-thin 存储池</h3><p>PVE的lvm-thin存储池是个好东西，但是在一块120G的SSD划分这么多区域，空间利用率不佳。</p>
+<p>我这里把lvm-thin全部删掉，空间都让给了local存储池，后者就是Debian root分区大小。</p>
+<p>删除data volume</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lvremove pve&#x2F;data</span><br></pre></td></tr></table></figure>
+<p>把硬盘的剩余空间全部分配给root</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lvextend -l +100%FREE -r pve&#x2F;root</span><br></pre></td></tr></table></figure>
+<p>PVE的Web界面，找到数据中心–存储–删除lvm-local那个池。编辑local存储池–内容全部勾选，这样local池就可以存储ISO镜像、磁盘镜像、容器、容器模板、VZDump备份文件等内容了。</p>
+<p>参考：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://pve.proxmox.com/wiki/Installation">https://pve.proxmox.com/wiki/Installation</a></li>
+<li><a target="_blank" rel="noopener" href="https://tieba.baidu.com/p/6282527282?pn=3">https://tieba.baidu.com/p/6282527282?pn=3</a></li>
+<li><a target="_blank" rel="noopener" href="https://tieba.baidu.com/p/6361557274?red_tag=3099761317">https://tieba.baidu.com/p/6361557274?red_tag=3099761317</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.bilibili.com/read/cv5496032/">https://www.bilibili.com/read/cv5496032/</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/proxmox-ve/" rel="tag"># proxmox ve</a>
+              <a href="/tags/clover/" rel="tag"># clover</a>
+              <a href="/tags/uefi/" rel="tag"># uefi</a>
+              <a href="/tags/debian/" rel="tag"># debian</a>
+              <a href="/tags/pve/" rel="tag"># pve</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/202103/vxlan_evpn_with_frr/" rel="prev" title="基于VXLAN EVPN的异地组网">
+      <i class="fa fa-chevron-left"></i> 基于VXLAN EVPN的异地组网
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
   
 
-</div>
-
-</header>
-
-      
-      
-      
-      <div class="post-body">
-          <h3 id="我是谁"><a href="#我是谁" class="headerlink" title="我是谁"></a>我是谁</h3><p><img src="/images/pichu.gif" alt="alt 比超"><br>我是D2O，又叫重水，又叫Conupe Fox(简称Fox)。</p>
-<h3 id="关于本站"><a href="#关于本站" class="headerlink" title="关于本站"></a>关于本站</h3><p>由于之前的网站 <a target="_blank" rel="noopener" href="http://blog.csdn.net/conupefox">http://blog.csdn.net/conupefox</a> 没实名，现在已经无法登录了。以后有什么东西都在这里记录，以前的东西也可能会搬过来。</p>
-<h3 id="为什么用hexo"><a href="#为什么用hexo" class="headerlink" title="为什么用hexo"></a>为什么用hexo</h3><p>因为github pages免费，但愿稳定吧。</p>
-
-      </div>
-      
-      
-      
-    </div>
-    
-
-    
-    
-    
 
 
           </div>
@@ -483,7 +580,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'conupefox.github.io',
       owner       : 'conupefox',
       admin       : ['conupefox'],
-      id          : '3be7aa98d992907175cbd79c194399f2',
+      id          : '58c30998dcab4a3be9288efb38218692',
         language: '',
       distractionFreeMode: true
     });

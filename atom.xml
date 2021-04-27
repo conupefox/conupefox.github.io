@@ -6,7 +6,7 @@
   <link href="http://blog.d2okkk.net/atom.xml" rel="self"/>
   
   <link href="http://blog.d2okkk.net/"/>
-  <updated>2021-03-15T14:06:03.000Z</updated>
+  <updated>2021-04-27T12:47:49.000Z</updated>
   <id>http://blog.d2okkk.net/</id>
   
   <author>
@@ -15,6 +15,37 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>All in one小主机重装实录--Proxmox VE 6.3安装配置</title>
+    <link href="http://blog.d2okkk.net/202104/j1800_setup_1/"/>
+    <id>http://blog.d2okkk.net/202104/j1800_setup_1/</id>
+    <published>2021-04-27T04:24:57.000Z</published>
+    <updated>2021-04-27T12:47:49.000Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h3><p>本文主要介绍Proxmox VE 6.3的安装配置和利用Clover实现NVME SSD引导。</p><p>最近发现运行了2年的All in one小主机硬盘出现了坏道，于是萌生了重装+升级的想法，为了日后易于查找记录一下过程。</p><p>HTPC硬件平台（升级后） J1800+16G RAM+128G NVME SSD + 500G机械</p><a id="more"></a><h3 id="Proxmox-VE-6-3"><a href="#Proxmox-VE-6-3" class="headerlink" title="Proxmox VE 6.3"></a>Proxmox VE 6.3</h3><p>PVE的安装应该大致就是官网下载iso，然后<a href="https://www.balena.io/etcher/">balenaEtcher</a>写入U盘引导安装。值得注意的是，因为是把安装到NVME SSD，所以用UEFI+GPT引导会比较方便。</p><p>为了最大化利用NVME SSD空间，安装PVE的时候需要分区大小需要设置一下。</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">swap 4G 交换空间，由于内存有16G，J1800弱鸡的性能估计用不到swap，但是安装程序规定最少4G。</span><br><span class="line">minfree 0 不要预留任何空间，这样安装完之后就不会存在未分配的空间。</span><br></pre></td></tr></table></figure><h3 id="Clover引导"><a href="#Clover引导" class="headerlink" title="Clover引导"></a>Clover引导</h3><p>Clover是著名的黑苹果引导工具。本质上是一个模拟UEFI的软件，利用Clover可以实现老主板支持UEFI引导，免刷BIOS NVME SSD引导。我这里 J1800的小主板是支持UEFI的，但是没有UEFI里面NVME的驱动，无法从NVME SSD引导系统。刷BIOS固然是可以实现，但是借助Clover来引导比刷BIOS更方便，只需要一个小U盘就足够了。</p><p>制作方法是参照B站大佬<a href="https://www.bilibili.com/read/cv5496032/">lwyx2017</a> 的，他说得比较细致。大致过程就是</p><ul><li>下载最新版的<a href="https://github.com/CloverHackyColor/CloverBootloader/releases/">CloverBootloader</a>用 Clover-xxxx-X64.iso.7z那个文件。</li><li>用<a href="http://cvad-mac.narod.ru/index/bootdiskutility_exe/0-5">Boot Disk Utility</a> 这个工具把Clover写入到U盘，这个工具里面也可以自动从github下载到最新版本的CloverBootloader。其实原理就把U盘格式化成FAT32的分区，然后里面有个EFI的文件夹，是UEFI的标准引导方式。</li><li>打开U盘，找到目录EFI\CLOVER\drivers\off下面的NvmExpressDxe.efi那个文件，把他复制到EFI\CLOVER\drivers\BIOS和EFI\CLOVER\drivers\UEFI 两个地方。目的是让Clover加载NVME驱动，识别NVME SSD</li></ul><p>由于PVE是使用UEFI引导安装的，安装完成后NVME SSD里面已经自动分好了EFI分区。Clover U盘制作完成之后，直接插到J1800上就可以直接引导进入PVE了。</p><h3 id="PVE配置国内的Debain源和PVE源"><a href="#PVE配置国内的Debain源和PVE源" class="headerlink" title="PVE配置国内的Debain源和PVE源"></a>PVE配置国内的Debain源和PVE源</h3><p>由于种种原因，官方的apt源总是非常慢，换成国内科大的源，速度可以起飞。</p><p>国内源是用<a href="https://mirrors.ustc.edu.cn/">中国科学技术大学</a>的比较靠谱。</p><p>如果用阿里、腾讯、163速度慢不说，还经常有莫名奇妙的问题。还不如用官方源+特殊方式上网好。</p><p>编辑<code>/etc/apt/sources.list</code></p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">deb https:&#x2F;&#x2F;mirrors.ustc.edu.cn&#x2F;debian&#x2F; buster main non-free contrib</span><br><span class="line">deb-src https:&#x2F;&#x2F;mirrors.ustc.edu.cn&#x2F;debian&#x2F; buster main non-free contrib</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.ustc.edu.cn&#x2F;debian-security buster&#x2F;updates main</span><br><span class="line">deb-src https:&#x2F;&#x2F;mirrors.ustc.edu.cn&#x2F;debian-security buster&#x2F;updates main</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.ustc.edu.cn&#x2F;debian&#x2F; buster-updates main non-free contrib</span><br><span class="line">deb-src https:&#x2F;&#x2F;mirrors.ustc.edu.cn&#x2F;debian&#x2F; buster-updates main non-free contrib</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.ustc.edu.cn&#x2F;debian&#x2F; buster-backports main non-free contrib</span><br><span class="line">deb-src https:&#x2F;&#x2F;mirrors.ustc.edu.cn&#x2F;debian&#x2F; buster-backports main non-free contrib</span><br><span class="line"></span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.ustc.edu.cn&#x2F;proxmox&#x2F;debian&#x2F;pve buster pve-no-subscription</span><br></pre></td></tr></table></figure><p>删除PVE企业源</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rm -rf &#x2F;etc&#x2F;apt&#x2F;sources.list.d&#x2F;pve-enterprise.list</span><br></pre></td></tr></table></figure><p>最后执行升级</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">apt update</span><br><span class="line">apt update&amp;&amp;apt dist-upgrade </span><br></pre></td></tr></table></figure><h3 id="删掉lvm-thin-存储池"><a href="#删掉lvm-thin-存储池" class="headerlink" title="删掉lvm-thin 存储池"></a>删掉lvm-thin 存储池</h3><p>PVE的lvm-thin存储池是个好东西，但是在一块120G的SSD划分这么多区域，空间利用率不佳。</p><p>我这里把lvm-thin全部删掉，空间都让给了local存储池，后者就是Debian root分区大小。</p><p>删除data volume</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lvremove pve&#x2F;data</span><br></pre></td></tr></table></figure><p>把硬盘的剩余空间全部分配给root</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lvextend -l +100%FREE -r pve&#x2F;root</span><br></pre></td></tr></table></figure><p>PVE的Web界面，找到数据中心–存储–删除lvm-local那个池。编辑local存储池–内容全部勾选，这样local池就可以存储ISO镜像、磁盘镜像、容器、容器模板、VZDump备份文件等内容了。</p><p>参考：</p><ul><li><a href="https://pve.proxmox.com/wiki/Installation">https://pve.proxmox.com/wiki/Installation</a></li><li><a href="https://tieba.baidu.com/p/6282527282?pn=3">https://tieba.baidu.com/p/6282527282?pn=3</a></li><li><a href="https://tieba.baidu.com/p/6361557274?red_tag=3099761317">https://tieba.baidu.com/p/6361557274?red_tag=3099761317</a></li><li><a href="https://www.bilibili.com/read/cv5496032/">https://www.bilibili.com/read/cv5496032/</a></li></ul>]]></content>
+    
+    
+    <summary type="html">&lt;h3 id=&quot;前言：&quot;&gt;&lt;a href=&quot;#前言：&quot; class=&quot;headerlink&quot; title=&quot;前言：&quot;&gt;&lt;/a&gt;前言：&lt;/h3&gt;&lt;p&gt;本文主要介绍Proxmox VE 6.3的安装配置和利用Clover实现NVME SSD引导。&lt;/p&gt;
+&lt;p&gt;最近发现运行了2年的All in one小主机硬盘出现了坏道，于是萌生了重装+升级的想法，为了日后易于查找记录一下过程。&lt;/p&gt;
+&lt;p&gt;HTPC硬件平台（升级后） J1800+16G RAM+128G NVME SSD + 500G机械&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="Home Lab" scheme="http://blog.d2okkk.net/categories/Home-Lab/"/>
+    
+    
+    <category term="proxmox ve" scheme="http://blog.d2okkk.net/tags/proxmox-ve/"/>
+    
+    <category term="clover" scheme="http://blog.d2okkk.net/tags/clover/"/>
+    
+    <category term="uefi" scheme="http://blog.d2okkk.net/tags/uefi/"/>
+    
+    <category term="debian" scheme="http://blog.d2okkk.net/tags/debian/"/>
+    
+    <category term="pve" scheme="http://blog.d2okkk.net/tags/pve/"/>
+    
+  </entry>
   
   <entry>
     <title>基于VXLAN EVPN的异地组网</title>

@@ -173,6 +173,99 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://blog.d2okkk.net/202201/asterisk/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="D2O">
+      <meta itemprop="description" content="blog.d2okkk.net">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="D2O | 重水">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/202201/asterisk/" class="post-title-link" itemprop="url">记录一下配置Asterisk踩的坑</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-01-05 09:45:00 / 修改时间：09:59:51" itemprop="dateCreated datePublished" datetime="2022-01-05T09:45:00+08:00">2022-01-05</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%B3%BB%E7%BB%9F/" itemprop="url" rel="index"><span itemprop="name">系统</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/202201/asterisk/" class="post-meta-item leancloud_visitors" data-flag-title="记录一下配置Asterisk踩的坑" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>1.在国内自建 stun，这个比较简单的，用 coturn 建一个就行了。openwrt 下可以用restund，但是我还没解决动态 ip 怎么更新的问题，所以暂时是在固定 ip 的云主机上用 coturn 搭建。<br>2.用标准5060端口，实测发现在非标准端口下 linphone 发包的时候没有携带端口号，导致45秒断线，其他客户端暂未发现此问题，推测是 linphone 客户端的问题。非标端口做了 srv 记录也是一样。<br>3.asterisk 位于路由器后面时，路由器端口映射5060和 rtp 端口。asterisk 本机 hostname 要改成 sip 域名，并添加 hosts  sip 域名只向本机私网 ip。在 sip.conf 里面要配置localnet=x.x.x.x/255.255.255.0 ;Zero conf local network，否则会有30秒断线问题</p>
+<p>参考：<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/23050268/asterisk-call-drop-after-30-seconds">Asterisk call drop after 30 seconds - Stack Overflow</a></p>
+<p>4.linphone 客户端开启推送通知后 sip Contact 字段包含 token 信息长度超255字节，会被asterisk 丢弃溢出部分，导致接听32秒断线。对于自建 asterisk 需要取消推送通知选项。对于 linphone 官方服务可以开启。</p>
+<p>参考：<a target="_blank" rel="noopener" href="https://github.com/BelledonneCommunications/linphone-android/issues/265">infamous 30 or 33 second call disconnect of incoming calls - linphone · Issue #265 · BelledonneCommunications/linphone-android · GitHub</a><br>5.sip.conf 配置(rtp直通、nat穿透、拨打外域部分)  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">tlsdontverifyserver&#x3D;yes  </span><br><span class="line">srvlookup&#x3D;yes  </span><br><span class="line">media_address&#x3D;ddns.domain.net  </span><br><span class="line">externhost&#x3D;ddns.domain.net  </span><br><span class="line">localnet&#x3D;x.x.x.x&#x2F;255.255.255.0 ; lan subnet  </span><br><span class="line">directmedia&#x3D;update  </span><br><span class="line">directrtpsetup&#x3D;yes  </span><br><span class="line">icesupport&#x3D;yes</span><br></pre></td></tr></table></figure>
+<p>6.安卓自带 sip 客户端 在离开 WiFi 范围网络失效，自动切换到数据，或者反过来切换的时候，不会重新连接sip服务器注册，只有手动切换数据 WiFi 的时候会主动重新注册。</p>
+<p>如果 sip 服务器用的是双栈网络，在数据网络用了 ipv6，即使手动切换到 WiFi 也会用 ipv6 进行连接。</p>
+<p>如果 WiFi 没有 ipv6 会注册失败。为此我的 sip 服务器只绑定了 ipv4。动态 ip 更换 ip 之后安卓自带 sip 客户端不会重新解析域名，需要手动切一下数据 WiFi 激活注册。</p>
+<p>总结一下就是安卓自带 sip 客户端是个半成品，不实用。</p>
+<p>7.关于 chan-dongle</p>
+<p>openwrt-19.07.8 自带 chan-dongle 版本太旧，可以正常使用不支持长短信。</p>
+<p>openwrt-21.02.1 自带 chan-dongle 版本，棒子初始化不正常（mt7620平台，E1750棒子）。</p>
+<p>支持长短信、openwrt_sdk 编译通过、棒子初始化正常，所有功能都可以使用的版本。</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/wdoekes/asterisk-chan-dongle/commit/ca9b69276738af1d571ec120e103d317701760c2">fix Cannot parse UCS-2 error (#131) · wdoekes/asterisk-chan-dongle@ca9b692 · GitHub</a></p>
+<p>openwrt-19.07 Makefile</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">PKG_SOURCE_VERSION:&#x3D;ca9b69276738af1d571ec120e103d317701760c2</span><br><span class="line">PKG_SOURCE_DATE&#x3D;2021-04-19</span><br><span class="line">PKG_RELEASE:&#x3D;1</span><br><span class="line">PKG_MIRROR_HASH:&#x3D;skip</span><br></pre></td></tr></table></figure>
+<p>8.openwrt-19.07.8 官方编译的 asterisk-16.22.0  有闪退问题(mt7620平台)</p>
+<p>使用 sdk 编译回退到 asterisk-16.10 正常</p>
+<p>src-git telephony <a target="_blank" rel="noopener" href="https://git.openwrt.org/feed/telephony.git%5Eedbeb1b9a30153b06cbb8120cdd718e1ac0ba7d2">https://git.openwrt.org/feed/telephony.git^edbeb1b9a30153b06cbb8120cdd718e1ac0ba7d2</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://blog.d2okkk.net/202105/j1800_setup_3/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -840,7 +933,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-count">8</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -853,7 +946,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

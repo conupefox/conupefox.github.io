@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.d2okkk.net/202201/asterisk/</loc>
+    
+    <lastmod>2022-01-05</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://blog.d2okkk.net/202104/j1800_setup_2/</loc>
     
     <lastmod>2021-05-10</lastmod>
@@ -208,6 +215,20 @@
   
   <url>
     <loc>http://blog.d2okkk.net/tags/frr/</loc>
+    <lastmod>2022-01-05</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://blog.d2okkk.net/tags/asterisk/</loc>
+    <lastmod>2022-01-05</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://blog.d2okkk.net/tags/chan-dongle/</loc>
     <lastmod>2022-01-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>

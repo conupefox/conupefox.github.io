@@ -20,17 +20,22 @@
     var CONFIG = {"hostname":"blog.d2okkk.net","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="blog.d2okkk.net">
-<meta property="og:type" content="website">
-<meta property="og:title" content="D2O | 重水">
-<meta property="og:url" content="http://blog.d2okkk.net/tags/centos/index.html">
+  <meta name="description" content="1.在国内自建 stun，这个比较简单的，用 coturn 建一个就行了。openwrt 下可以用restund，但是我还没解决动态 ip 怎么更新的问题，所以暂时是在固定 ip 的云主机上用 coturn 搭建。2.用标准5060端口，实测发现在非标准端口下 linphone 发包的时候没有携带端口号，导致45秒断线，其他客户端暂未发现此问题，推测是 linphone 客户端的问题。非标端口做了">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记录一下配置Asterisk踩的坑">
+<meta property="og:url" content="http://blog.d2okkk.net/202201/asterisk/index.html">
 <meta property="og:site_name" content="D2O | 重水">
-<meta property="og:description" content="blog.d2okkk.net">
+<meta property="og:description" content="1.在国内自建 stun，这个比较简单的，用 coturn 建一个就行了。openwrt 下可以用restund，但是我还没解决动态 ip 怎么更新的问题，所以暂时是在固定 ip 的云主机上用 coturn 搭建。2.用标准5060端口，实测发现在非标准端口下 linphone 发包的时候没有携带端口号，导致45秒断线，其他客户端暂未发现此问题，推测是 linphone 客户端的问题。非标端口做了">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-01-05T01:45:00.000Z">
+<meta property="article:modified_time" content="2022-01-05T01:59:51.763Z">
 <meta property="article:author" content="D2O">
+<meta property="article:tag" content="openwrt">
+<meta property="article:tag" content="asterisk">
+<meta property="article:tag" content="chan_dongle">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://blog.d2okkk.net/tags/centos/">
+<link rel="canonical" href="http://blog.d2okkk.net/202201/asterisk/">
 
 
 <script id="page-configurations">
@@ -38,12 +43,12 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : false,
+    isPost : true,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>标签: centos | D2O | 重水</title>
+  <title>记录一下配置Asterisk踩的坑 | D2O | 重水</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-105973717-1"></script>
     <script>
@@ -167,57 +172,123 @@
         <div class="content-wrap">
           
 
-          <div class="content tag">
+          <div class="content post posts-expand">
             
 
+    
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        <h2 class="collection-header">centos
-          <small>标签</small>
-        </h2>
-      </div>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://blog.d2okkk.net/202201/asterisk/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="D2O">
+      <meta itemprop="description" content="blog.d2okkk.net">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="D2O | 重水">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          记录一下配置Asterisk踩的坑
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-01-05 09:45:00 / 修改时间：09:59:51" itemprop="dateCreated datePublished" datetime="2022-01-05T09:45:00+08:00">2022-01-05</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%B3%BB%E7%BB%9F/" itemprop="url" rel="index"><span itemprop="name">系统</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/202201/asterisk/" class="post-meta-item leancloud_visitors" data-flag-title="记录一下配置Asterisk踩的坑" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-    <div class="collection-year">
-      <span class="collection-header">2017</span>
+        <p>1.在国内自建 stun，这个比较简单的，用 coturn 建一个就行了。openwrt 下可以用restund，但是我还没解决动态 ip 怎么更新的问题，所以暂时是在固定 ip 的云主机上用 coturn 搭建。<br>2.用标准5060端口，实测发现在非标准端口下 linphone 发包的时候没有携带端口号，导致45秒断线，其他客户端暂未发现此问题，推测是 linphone 客户端的问题。非标端口做了 srv 记录也是一样。<br>3.asterisk 位于路由器后面时，路由器端口映射5060和 rtp 端口。asterisk 本机 hostname 要改成 sip 域名，并添加 hosts  sip 域名只向本机私网 ip。在 sip.conf 里面要配置localnet=x.x.x.x/255.255.255.0 ;Zero conf local network，否则会有30秒断线问题</p>
+<p>参考：<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/23050268/asterisk-call-drop-after-30-seconds">Asterisk call drop after 30 seconds - Stack Overflow</a></p>
+<p>4.linphone 客户端开启推送通知后 sip Contact 字段包含 token 信息长度超255字节，会被asterisk 丢弃溢出部分，导致接听32秒断线。对于自建 asterisk 需要取消推送通知选项。对于 linphone 官方服务可以开启。</p>
+<p>参考：<a target="_blank" rel="noopener" href="https://github.com/BelledonneCommunications/linphone-android/issues/265">infamous 30 or 33 second call disconnect of incoming calls - linphone · Issue #265 · BelledonneCommunications/linphone-android · GitHub</a><br>5.sip.conf 配置(rtp直通、nat穿透、拨打外域部分)  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">tlsdontverifyserver&#x3D;yes  </span><br><span class="line">srvlookup&#x3D;yes  </span><br><span class="line">media_address&#x3D;ddns.domain.net  </span><br><span class="line">externhost&#x3D;ddns.domain.net  </span><br><span class="line">localnet&#x3D;x.x.x.x&#x2F;255.255.255.0 ; lan subnet  </span><br><span class="line">directmedia&#x3D;update  </span><br><span class="line">directrtpsetup&#x3D;yes  </span><br><span class="line">icesupport&#x3D;yes</span><br></pre></td></tr></table></figure>
+<p>6.安卓自带 sip 客户端 在离开 WiFi 范围网络失效，自动切换到数据，或者反过来切换的时候，不会重新连接sip服务器注册，只有手动切换数据 WiFi 的时候会主动重新注册。</p>
+<p>如果 sip 服务器用的是双栈网络，在数据网络用了 ipv6，即使手动切换到 WiFi 也会用 ipv6 进行连接。</p>
+<p>如果 WiFi 没有 ipv6 会注册失败。为此我的 sip 服务器只绑定了 ipv4。动态 ip 更换 ip 之后安卓自带 sip 客户端不会重新解析域名，需要手动切一下数据 WiFi 激活注册。</p>
+<p>总结一下就是安卓自带 sip 客户端是个半成品，不实用。</p>
+<p>7.关于 chan-dongle</p>
+<p>openwrt-19.07.8 自带 chan-dongle 版本太旧，可以正常使用不支持长短信。</p>
+<p>openwrt-21.02.1 自带 chan-dongle 版本，棒子初始化不正常（mt7620平台，E1750棒子）。</p>
+<p>支持长短信、openwrt_sdk 编译通过、棒子初始化正常，所有功能都可以使用的版本。</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/wdoekes/asterisk-chan-dongle/commit/ca9b69276738af1d571ec120e103d317701760c2">fix Cannot parse UCS-2 error (#131) · wdoekes/asterisk-chan-dongle@ca9b692 · GitHub</a></p>
+<p>openwrt-19.07 Makefile</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">PKG_SOURCE_VERSION:&#x3D;ca9b69276738af1d571ec120e103d317701760c2</span><br><span class="line">PKG_SOURCE_DATE&#x3D;2021-04-19</span><br><span class="line">PKG_RELEASE:&#x3D;1</span><br><span class="line">PKG_MIRROR_HASH:&#x3D;skip</span><br></pre></td></tr></table></figure>
+<p>8.openwrt-19.07.8 官方编译的 asterisk-16.22.0  有闪退问题(mt7620平台)</p>
+<p>使用 sdk 编译回退到 asterisk-16.10 正常</p>
+<p>src-git telephony <a target="_blank" rel="noopener" href="https://git.openwrt.org/feed/telephony.git%5Eedbeb1b9a30153b06cbb8120cdd718e1ac0ba7d2">https://git.openwrt.org/feed/telephony.git^edbeb1b9a30153b06cbb8120cdd718e1ac0ba7d2</a></p>
+
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+    
+    
+    
 
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2017-09-14T16:27:00+08:00"
-              content="2017-09-14">
-          09-14
-        </time>
-      </div>
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/openwrt/" rel="tag"># openwrt</a>
+              <a href="/tags/asterisk/" rel="tag"># asterisk</a>
+              <a href="/tags/chan-dongle/" rel="tag"># chan_dongle</a>
+          </div>
 
-      <div class="post-title">
-          <a class="post-title-link" href="/201709/centos-init/" itemprop="url">
-            <span itemprop="name">CentOS7开局配置记录</span>
-          </a>
-      </div>
+        
 
-    </header>
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/202105/j1800_setup_3/" rel="prev" title="All in one小主机重装实录--DSM 6.2.3">
+      <i class="fa fa-chevron-left"></i> All in one小主机重装实录--DSM 6.2.3
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
   </article>
-
-    </div>
-  </div>
   
   
-  
-
   
 
 
 
           </div>
           
+    <div class="comments" id="gitalk-container"></div>
 
 <script>
   window.addEventListener('tabs:register', () => {
@@ -474,6 +545,25 @@
 
   
 
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '7ed0d043553f2a84d736',
+      clientSecret: 'a3e18e362694db66619b46f5d79e0f4cd84ab640',
+      repo        : 'conupefox.github.io',
+      owner       : 'conupefox',
+      admin       : ['conupefox'],
+      id          : 'af9697af003cf2f10e2a3001f5b9316f',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
 
 </body>
 </html>

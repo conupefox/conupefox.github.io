@@ -144,20 +144,6 @@
   </url>
   
   <url>
-    <loc>http://blog.d2okkk.net/tags/ubuntu/</loc>
-    <lastmod>2022-01-05</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://blog.d2okkk.net/tags/kodi/</loc>
-    <lastmod>2022-01-05</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>http://blog.d2okkk.net/tags/sapphire/</loc>
     <lastmod>2022-01-05</lastmod>
     <changefreq>daily</changefreq>
@@ -165,28 +151,14 @@
   </url>
   
   <url>
-    <loc>http://blog.d2okkk.net/tags/openwrt/</loc>
-    <lastmod>2022-01-05</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://blog.d2okkk.net/tags/vxlan/</loc>
-    <lastmod>2022-01-05</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://blog.d2okkk.net/tags/frr/</loc>
-    <lastmod>2022-01-05</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>http://blog.d2okkk.net/tags/Debian/</loc>
+    <lastmod>2022-01-05</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://blog.d2okkk.net/tags/kodi/</loc>
     <lastmod>2022-01-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -208,6 +180,34 @@
   
   <url>
     <loc>http://blog.d2okkk.net/tags/dsm/</loc>
+    <lastmod>2022-01-05</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://blog.d2okkk.net/tags/ubuntu/</loc>
+    <lastmod>2022-01-05</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://blog.d2okkk.net/tags/openwrt/</loc>
+    <lastmod>2022-01-05</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://blog.d2okkk.net/tags/vxlan/</loc>
+    <lastmod>2022-01-05</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://blog.d2okkk.net/tags/frr/</loc>
     <lastmod>2022-01-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>

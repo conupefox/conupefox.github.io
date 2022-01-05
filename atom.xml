@@ -63,11 +63,11 @@
     <category term="Home Lab" scheme="http://blog.d2okkk.net/categories/Home-Lab/"/>
     
     
-    <category term="kodi" scheme="http://blog.d2okkk.net/tags/kodi/"/>
-    
     <category term="sapphire" scheme="http://blog.d2okkk.net/tags/sapphire/"/>
     
     <category term="Debian" scheme="http://blog.d2okkk.net/tags/Debian/"/>
+    
+    <category term="kodi" scheme="http://blog.d2okkk.net/tags/kodi/"/>
     
   </entry>
   
@@ -151,11 +151,11 @@
     <category term="Home Lab" scheme="http://blog.d2okkk.net/categories/Home-Lab/"/>
     
     
-    <category term="ubuntu" scheme="http://blog.d2okkk.net/tags/ubuntu/"/>
+    <category term="sapphire" scheme="http://blog.d2okkk.net/tags/sapphire/"/>
     
     <category term="kodi" scheme="http://blog.d2okkk.net/tags/kodi/"/>
     
-    <category term="sapphire" scheme="http://blog.d2okkk.net/tags/sapphire/"/>
+    <category term="ubuntu" scheme="http://blog.d2okkk.net/tags/ubuntu/"/>
     
   </entry>
   

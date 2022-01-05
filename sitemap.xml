@@ -88,6 +88,27 @@
 
   
   <url>
+    <loc>http://blog.d2okkk.net/tags/asterisk/</loc>
+    <lastmod>2022-01-05</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://blog.d2okkk.net/tags/chan-dongle/</loc>
+    <lastmod>2022-01-05</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://blog.d2okkk.net/tags/openwrt/</loc>
+    <lastmod>2022-01-05</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>http://blog.d2okkk.net/tags/bgp/</loc>
     <lastmod>2022-01-05</lastmod>
     <changefreq>daily</changefreq>
@@ -200,13 +221,6 @@
   </url>
   
   <url>
-    <loc>http://blog.d2okkk.net/tags/openwrt/</loc>
-    <lastmod>2022-01-05</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>http://blog.d2okkk.net/tags/vxlan/</loc>
     <lastmod>2022-01-05</lastmod>
     <changefreq>daily</changefreq>
@@ -215,20 +229,6 @@
   
   <url>
     <loc>http://blog.d2okkk.net/tags/frr/</loc>
-    <lastmod>2022-01-05</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://blog.d2okkk.net/tags/asterisk/</loc>
-    <lastmod>2022-01-05</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://blog.d2okkk.net/tags/chan-dongle/</loc>
     <lastmod>2022-01-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>

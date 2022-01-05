@@ -36,11 +36,11 @@
     <category term="系统" scheme="http://blog.d2okkk.net/categories/%E7%B3%BB%E7%BB%9F/"/>
     
     
-    <category term="openwrt" scheme="http://blog.d2okkk.net/tags/openwrt/"/>
-    
     <category term="asterisk" scheme="http://blog.d2okkk.net/tags/asterisk/"/>
     
     <category term="chan_dongle" scheme="http://blog.d2okkk.net/tags/chan-dongle/"/>
+    
+    <category term="openwrt" scheme="http://blog.d2okkk.net/tags/openwrt/"/>
     
   </entry>
   

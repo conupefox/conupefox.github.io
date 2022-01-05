@@ -198,7 +198,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2022-01-05 09:45:00 / 修改时间：10:03:40" itemprop="dateCreated datePublished" datetime="2022-01-05T09:45:00+08:00">2022-01-05</time>
+              <time title="创建时间：2022-01-05 09:45:00 / 修改时间：10:51:32" itemprop="dateCreated datePublished" datetime="2022-01-05T09:45:00+08:00">2022-01-05</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -228,7 +228,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>1.在国内自建 stun，这个比较简单的，用 coturn 建一个就行了。openwrt 下可以用restund，但是我还没解决动态 ip 怎么更新的问题，所以暂时是在固定 ip 的云主机上用 coturn 搭建。<br>2.用标准5060端口，实测发现在非标准端口下 linphone 发包的时候没有携带端口号，导致45秒断线，其他客户端暂未发现此问题，推测是 linphone 客户端的问题。非标端口做了 srv 记录也是一样。<br>3.asterisk 位于路由器后面时，路由器端口映射5060和 rtp 端口。asterisk 本机 hostname 要改成 sip 域名，并添加 hosts  sip 域名只向本机私网 ip。在 sip.conf 里面要配置localnet=x.x.x.x/255.255.255.0 ;Zero conf local network，否则会有30秒断线问题</p>
+          <p>1.在国内自建 stun，这个比较简单的，用 coturn 建一个就行了。openwrt 下可以用restund，但是我还没解决动态 ip 怎么更新的问题，所以暂时是在固定 ip 的云主机上用 coturn 搭建。<br>2.用标准5060端口，实测发现在非标准端口下 linphone 发包的时候没有携带端口号，导致45秒断线，其他客户端暂未发现此问题，推测是 linphone 客户端的问题。非标端口做了 srv 记录也是一样。<br>3.asterisk 位于路由器后面时，路由器端口映射5060和 rtp 端口。<br>asterisk 本机 hostname 要改成 sip 域名，并添加 hosts  sip 域名只向本机私网 ip。<br>在 sip.conf 里面要配置localnet=x.x.x.x/255.255.255.0 ;Zero conf local network，否则会有30秒断线问题。</p>
 <p>参考：<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/23050268/asterisk-call-drop-after-30-seconds">Asterisk call drop after 30 seconds - Stack Overflow</a></p>
 <p>4.linphone 客户端开启推送通知后 sip Contact 字段包含 token 信息长度超255字节，会被asterisk 丢弃溢出部分，导致接听32秒断线。对于自建 asterisk 需要取消推送通知选项。对于 linphone 官方服务可以开启。</p>
 <p>参考：<a target="_blank" rel="noopener" href="https://github.com/BelledonneCommunications/linphone-android/issues/265">infamous 30 or 33 second call disconnect of incoming calls - linphone · Issue #265 · BelledonneCommunications/linphone-android · GitHub</a><br>5.sip.conf 配置(rtp直通、nat穿透、拨打外域部分)  </p>

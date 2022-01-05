@@ -28,7 +28,7 @@
 <meta property="og:description" content="1.在国内自建 stun，这个比较简单的，用 coturn 建一个就行了。openwrt 下可以用restund，但是我还没解决动态 ip 怎么更新的问题，所以暂时是在固定 ip 的云主机上用 coturn 搭建。2.用标准5060端口，实测发现在非标准端口下 linphone 发包的时候没有携带端口号，导致45秒断线，其他客户端暂未发现此问题，推测是 linphone 客户端的问题。非标端口做了">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-01-05T01:45:00.000Z">
-<meta property="article:modified_time" content="2022-01-05T02:51:32.288Z">
+<meta property="article:modified_time" content="2022-01-05T13:38:50.763Z">
 <meta property="article:author" content="D2O">
 <meta property="article:tag" content="asterisk">
 <meta property="article:tag" content="chan_dongle">
@@ -203,7 +203,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2022-01-05 09:45:00 / 修改时间：10:51:32" itemprop="dateCreated datePublished" datetime="2022-01-05T09:45:00+08:00">2022-01-05</time>
+              <time title="创建时间：2022-01-05 09:45:00 / 修改时间：21:38:50" itemprop="dateCreated datePublished" datetime="2022-01-05T09:45:00+08:00">2022-01-05</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -237,7 +237,7 @@
 <p>参考：<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/23050268/asterisk-call-drop-after-30-seconds">Asterisk call drop after 30 seconds - Stack Overflow</a></p>
 <p>4.linphone 客户端开启推送通知后 sip Contact 字段包含 token 信息长度超255字节，会被asterisk 丢弃溢出部分，导致接听32秒断线。对于自建 asterisk 需要取消推送通知选项。对于 linphone 官方服务可以开启。</p>
 <p>参考：<a target="_blank" rel="noopener" href="https://github.com/BelledonneCommunications/linphone-android/issues/265">infamous 30 or 33 second call disconnect of incoming calls - linphone · Issue #265 · BelledonneCommunications/linphone-android · GitHub</a><br>5.sip.conf 配置(rtp直通、nat穿透、拨打外域部分)  </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">tlsdontverifyserver&#x3D;yes  </span><br><span class="line">srvlookup&#x3D;yes  </span><br><span class="line">media_address&#x3D;ddns.domain.net  </span><br><span class="line">externhost&#x3D;ddns.domain.net  </span><br><span class="line">localnet&#x3D;x.x.x.x&#x2F;255.255.255.0 ; lan subnet  </span><br><span class="line">directmedia&#x3D;update  </span><br><span class="line">directrtpsetup&#x3D;yes  </span><br><span class="line">icesupport&#x3D;yes</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">tlsdontverifyserver&#x3D;yes  </span><br><span class="line">srvlookup&#x3D;yes  </span><br><span class="line">media_address&#x3D;ddns.domain.net  </span><br><span class="line">externhost&#x3D;ddns.domain.net  </span><br><span class="line">localnet&#x3D;x.x.x.x&#x2F;255.255.255.255; asterisk private ip</span><br><span class="line">directmedia&#x3D;update  </span><br><span class="line">directrtpsetup&#x3D;yes  </span><br><span class="line">icesupport&#x3D;yes</span><br></pre></td></tr></table></figure>
 <p>6.安卓自带 sip 客户端 在离开 WiFi 范围网络失效，自动切换到数据，或者反过来切换的时候，不会重新连接sip服务器注册，只有手动切换数据 WiFi 的时候会主动重新注册。</p>
 <p>如果 sip 服务器用的是双栈网络，在数据网络用了 ipv6，即使手动切换到 WiFi 也会用 ipv6 进行连接。</p>
 <p>如果 WiFi 没有 ipv6 会注册失败。为此我的 sip 服务器只绑定了 ipv4。动态 ip 更换 ip 之后安卓自带 sip 客户端不会重新解析域名，需要手动切一下数据 WiFi 激活注册。</p>

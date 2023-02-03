@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.d2okkk.net","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="威联通的NAS比群晖多了HDMI接口，可以用于视频播放。想着可以用于替换我现有的PVE+kodi+虚拟群晖，不用再搞个虚拟机出来，于是就进坑了。 本篇是真从入门到入土，最终因为种种原因还是放弃使用了，仅记录一下心得，可能日后还能用得上。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="关于黑威联通 QTS的折腾记录">
+<meta property="og:url" content="http://blog.d2okkk.net/202302/qnap_qts/index.html">
+<meta property="og:site_name" content="D2O | 重水">
+<meta property="og:description" content="威联通的NAS比群晖多了HDMI接口，可以用于视频播放。想着可以用于替换我现有的PVE+kodi+虚拟群晖，不用再搞个虚拟机出来，于是就进坑了。 本篇是真从入门到入土，最终因为种种原因还是放弃使用了，仅记录一下心得，可能日后还能用得上。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-02-03T02:45:00.000Z">
+<meta property="article:modified_time" content="2023-02-03T01:28:07.000Z">
+<meta property="article:author" content="D2O">
+<meta property="article:tag" content="qnap">
+<meta property="article:tag" content="黑威联通">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://blog.d2okkk.net/202302/qnap_qts/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>关于黑威联通 QTS的折腾记录 | D2O | 重水</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-105973717-1"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-105973717-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="D2O | 重水" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">D2O | 重水</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">恭喜您发现本站!</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://blog.d2okkk.net/202302/qnap_qts/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="D2O">
+      <meta itemprop="description" content="blog.d2okkk.net">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="D2O | 重水">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          关于黑威联通 QTS的折腾记录
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2023-02-03 10:45:00 / 修改时间：09:28:07" itemprop="dateCreated datePublished" datetime="2023-02-03T10:45:00+08:00">2023-02-03</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%B3%BB%E7%BB%9F/" itemprop="url" rel="index"><span itemprop="name">系统</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/202302/qnap_qts/" class="post-meta-item leancloud_visitors" data-flag-title="关于黑威联通 QTS的折腾记录" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>威联通的NAS比群晖多了HDMI接口，可以用于视频播放。想着可以用于替换我现有的PVE+kodi+虚拟群晖，不用再搞个虚拟机出来，于是就进坑了。</p>
+<p>本篇是真从入门到入土，最终因为种种原因还是放弃使用了，仅记录一下心得，可能日后还能用得上。</p>
+ <a id="more"></a>
+
+<p>就目前网上资料，黑威联通主要就是国内爷爷级大神老骥伏枥的研究结果，公开的资料不多，坑也多，很多问题都无解。我这了主要还是用牛年大礼包哪个镜像。安装步骤不难，按照参考连接里面的教程一步一步来就行了，主要就是<code>moudel.conf</code>文件的写法。</p>
+<p>以我的一块华硕P8B75-M LX PLUS为例，在<code>TinyCore</code>里面<code>lspci -vtnn</code>输出如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">tc@box:~$ lspci -vtnn</span><br><span class="line">-[0000:00]-+-00.0  Intel Corporation Xeon E3-1200 v2/3rd Gen Core processor DRAM Controller [8086:0150]</span><br><span class="line">           +-01.0-[01]--</span><br><span class="line">           +-02.0  Intel Corporation Xeon E3-1200 v2/3rd Gen Core processor Graphics Controller [8086:0152]</span><br><span class="line">           +-14.0  Intel Corporation 7 Series/C210 Series Chipset Family USB xHCI Host Controller [8086:1e31]</span><br><span class="line">           +-16.0  Intel Corporation 7 Series/C216 Chipset Family MEI Controller <span class="comment">#1 [8086:1e3a]</span></span><br><span class="line">           +-1a.0  Intel Corporation 7 Series/C216 Chipset Family USB Enhanced Host Controller <span class="comment">#2 [8086:1e2d]</span></span><br><span class="line">           +-1b.0  Intel Corporation 7 Series/C216 Chipset Family High Definition Audio Controller [8086:1e20]</span><br><span class="line">           +-1c.0-[02]--</span><br><span class="line">           +-1c.4-[03]----00.0  Realtek Semiconductor Co., Ltd. RTL8111/8168/8411 PCI Express Gigabit Ethernet Controller [10ec:8168]</span><br><span class="line">           +-1d.0  Intel Corporation 7 Series/C216 Chipset Family USB Enhanced Host Controller <span class="comment">#1 [8086:1e26]</span></span><br><span class="line">           +-1e.0-[04]----00.0  Intel Corporation 82557/8/9/0/1 Ethernet Pro 100 [8086:1229]</span><br><span class="line">           +-1f.0  Intel Corporation B75 Express Chipset LPC Controller [8086:1e49]</span><br><span class="line">           +-1f.2  Intel Corporation 7 Series/C210 Series Chipset Family 6-port SATA Controller [AHCI mode] [8086:1e02]</span><br><span class="line">           \-1f.3  Intel Corporation 7 Series/C216 Chipset Family SMBus Controller [8086:1e22]</span><br></pre></td></tr></table></figure>
+<p>可以看到有一个6口的SATA控制器，2个USB2.0根控制器，1个USB3.0根控制器，我这里选择用U盘做引导盘。经过测试在USB2.0接口下可以引导进入系统，但是WEB登录管理界面的时候会卡在Loading，换成USB3.0接口就正常了，原因不明。用另外一块I3-2367M的mini主板测试，USB2.0可以正常引导又不会卡Loading。U盘用的是很普通的USB2.0 8G U盘。</p>
+<p><code>sudo vi patch/etc/model.conf </code>如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br></pre></td><td class="code"><pre><span class="line">[System Enclosure]</span><br><span class="line">VENDOR = QNAP</span><br><span class="line">MODEL = TS-X53B</span><br><span class="line">CAP=0x161cdb9c</span><br><span class="line">MAX_DISK_NUM = 6</span><br><span class="line">MAX_FAN_NUM = 1</span><br><span class="line">MAX_TEMP_NUM = 2</span><br><span class="line">MAX_NET_PORT_NUM = 2</span><br><span class="line">INTERNAL_NET_PORT_NUM = 2</span><br><span class="line">MAX_PCIE_SLOT = 1</span><br><span class="line">CPU_TEMP_UNIT = DTS:1</span><br><span class="line">SYSTEM_TEMP_UNIT=SIO</span><br><span class="line">SIO_DEVICE = IT8528</span><br><span class="line">PWR_RECOVERY_UNIT = SIO</span><br><span class="line">PWR_RECOVERY_CMOS_STORE = 0x70,0x61</span><br><span class="line">BOARD_SN_DEVICE = BOOT1:67000000</span><br><span class="line">ETH_MAC_DEVICE = NET</span><br><span class="line"></span><br><span class="line">DISK_DRV_TYPE = ATA</span><br><span class="line">DISK_DEFAULT_MAX_LINK_SPEED = PD_SATA_SAS_6G</span><br><span class="line"></span><br><span class="line">SYSTEM_DISK_CACHEABLE_BITMAP = 0x1E</span><br><span class="line"></span><br><span class="line">SS_MAX_CHANNELS = 40</span><br><span class="line">SS_FREE_CHANNELS = 2</span><br><span class="line">LCM_BAUDRATE = 115200</span><br><span class="line">[System FAN]</span><br><span class="line">FAN_UNIT = SIO</span><br><span class="line">FAN_1=I1</span><br><span class="line">[System IO]</span><br><span class="line">RESET_BUTTON = SIO:I92:B1</span><br><span class="line">STATUS_GREEN_LED = SIO:I91:B2</span><br><span class="line">STATUS_RED_LED = SIO:I91:B3</span><br><span class="line">LED_BV_CTRL = GPIO</span><br><span class="line">USB_COPY_BUTTON = SIO:IE2:B2</span><br><span class="line">FRONT_USB_LED = SIO:IE1:B7</span><br><span class="line">VPD_MB = I2C:0x54</span><br><span class="line">VPD_BP = I2C:0x56</span><br><span class="line"></span><br><span class="line">[System Disk 1]</span><br><span class="line">DEV_BUS = B00:D31:F2</span><br><span class="line">DEV_PORT = 0</span><br><span class="line">[System Disk 2]</span><br><span class="line">DEV_BUS = B00:D31:F2</span><br><span class="line">DEV_PORT = 1</span><br><span class="line">[System Disk 3]</span><br><span class="line">DEV_BUS = B00:D31:F2</span><br><span class="line">DEV_PORT = 2</span><br><span class="line">[System Disk 4]</span><br><span class="line">DEV_BUS = B00:D31:F2</span><br><span class="line">DEV_PORT = 3</span><br><span class="line">[System Disk 5]</span><br><span class="line">DEV_BUS = B00:D31:F2</span><br><span class="line">DEV_PORT = 4 </span><br><span class="line">[System Disk 6]</span><br><span class="line">DEV_BUS = B00:D31:F2</span><br><span class="line">DEV_PORT = 5</span><br><span class="line"></span><br><span class="line">;网卡地址不填写，也不影响使用，系统会枚举网卡。</span><br><span class="line">;官网选TS-453B型号，4.5和5.0版本的系统 RTL8111自带驱动。Intel 82559百兆网卡无驱动，系统不识别。</span><br><span class="line">;[System Network 1]</span><br><span class="line">;DEV_BUS=B00:D28:F4</span><br><span class="line">;DEV_PORT = 0</span><br><span class="line">;DEV_BRIDGE_BUS = B03:D00:F0</span><br><span class="line"></span><br><span class="line">;经过测试我的USB2.0接口分别是USB 1-1.1、1-1.2、1-1.4、1-1.5、2-1.4、2-1.5。</span><br><span class="line">;USB3.0接口是USB 3-4、4-3</span><br><span class="line">;USB1-x 的地址是B00:D26:F0,USB2-x 的地址是B00:D29:F0</span><br><span class="line">[Usb Enclosure]</span><br><span class="line">VENDOR = QNAP</span><br><span class="line">MODEL = USB</span><br><span class="line">MAX_PORT_NUM = 8</span><br><span class="line">USB3_PORT_BITMAP = 0x1FE</span><br><span class="line">[Usb Port 1]</span><br><span class="line">DEV_BUS = B00:D26:F0</span><br><span class="line">IN_HUB = 1</span><br><span class="line">DEV_PORT = 1</span><br><span class="line">HUB_PORT = 1</span><br><span class="line">[Usb Port 2]</span><br><span class="line">DEV_BUS = B00:D26:F0</span><br><span class="line">IN_HUB = 1</span><br><span class="line">DEV_PORT = 2</span><br><span class="line">HUB_PORT = 1</span><br><span class="line">[Usb Port 3]</span><br><span class="line">DEV_BUS = B00:D26:F0</span><br><span class="line">IN_HUB = 1</span><br><span class="line">DEV_PORT = 5</span><br><span class="line">HUB_PORT = 1</span><br><span class="line">[Usb Port 4]</span><br><span class="line">DEV_BUS = B00:D26:F0</span><br><span class="line">IN_HUB = 1</span><br><span class="line">DEV_PORT = 6</span><br><span class="line">HUB_PORT = 1</span><br><span class="line">[Usb Port 5]</span><br><span class="line">DEV_BUS = B00:D29:F0</span><br><span class="line">IN_HUB = 1</span><br><span class="line">DEV_PORT = 5</span><br><span class="line">HUB_PORT = 1</span><br><span class="line">[Usb Port 6]</span><br><span class="line">DEV_BUS = B00:D29:F0</span><br><span class="line">IN_HUB = 1</span><br><span class="line">DEV_PORT = 6</span><br><span class="line">HUB_PORT = 1</span><br><span class="line">[Usb Port 7]</span><br><span class="line">DEV_BUS = B00:D20:F0</span><br><span class="line">DEV_PORT = 4</span><br><span class="line"></span><br><span class="line">[Boot Enclosure]</span><br><span class="line">VENDOR = QNAP</span><br><span class="line">MODEL = BOOT</span><br><span class="line">MAX_DISK_NUM = 1</span><br><span class="line">DISK_DRV_TYPE = USB</span><br><span class="line">;其中一个USB 3.0接口作为引导盘</span><br><span class="line">[Boot Disk 1]</span><br><span class="line">DEV_BUS = B00:D20:F0</span><br><span class="line">DEV_PORT = 3</span><br><span class="line"></span><br><span class="line">[Memory I2C 1]</span><br><span class="line">DEV_BUS = B00:31:F3</span><br><span class="line">DEV_PORT = 0</span><br><span class="line"></span><br><span class="line">[System Memory]</span><br><span class="line">MAX_CHANNEL_NUM = 2</span><br><span class="line">MAX_SLOT_NUM = 2</span><br><span class="line">SLOT1_ADDR = 1, 0x50</span><br><span class="line">SLOT2_ADDR = 2, 0x52</span><br></pre></td></tr></table></figure>
+<p>如果是在pve上，kvm虚拟机安装，磁盘类型只能是SATA，还需要加载<code>VirtIO</code>网卡驱动。</p>
+<p><code>sudo vi patch/laojifuli_patch</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#insmod virtio module</span></span><br><span class="line">[ -f /lib/modules/misc/virtio.ko ] &amp;&amp; /sbin/insmod /lib/modules/misc/virtio.ko 2&gt;&gt;/dev/null</span><br><span class="line">[ -f /lib/modules/misc/virtio_ring.ko ] &amp;&amp; /sbin/insmod /lib/modules/misc/virtio_ring.ko 2&gt;&gt;/dev/null</span><br><span class="line">[ -f /lib/modules/misc/virtio_rng.ko ] &amp;&amp; /sbin/insmod /lib/modules/misc/virtio_rng.ko 2&gt;&gt;/dev/null</span><br><span class="line">[ -f /lib/modules/misc/virtio_blk.ko ] &amp;&amp; /sbin/insmod /lib/modules/misc/virtio_blk.ko 2&gt;&gt;/dev/null</span><br><span class="line">[ -f /lib/modules/misc/virtio_net.ko ] &amp;&amp; /sbin/insmod /lib/modules/misc/virtio_net.ko 2&gt;&gt;/dev/null</span><br><span class="line">[ -f /lib/modules/misc/virtio_mmio.ko ] &amp;&amp; /sbin/insmod /lib/modules/misc/virtio_mmio.ko 2&gt;&gt;/dev/null</span><br><span class="line">[ -f /lib/modules/misc/virtio_console.ko ] &amp;&amp; /sbin/insmod /lib/modules/misc/virtio_console.ko 2&gt;&gt;/dev/null</span><br><span class="line">[ -f /lib/modules/misc/virtio_scsi.ko ] &amp;&amp; /sbin/insmod /lib/modules/misc/virtio_scsi.ko 2&gt;&gt;/dev/null</span><br><span class="line">[ -f /lib/modules/misc/virtio_balloon.ko ] &amp;&amp; /sbin/insmod /lib/modules/misc/virtio_balloon.ko 2&gt;&gt;/dev/null</span><br><span class="line">[ -f /lib/modules/misc/virtio_crypto.ko ] &amp;&amp; /sbin/insmod /lib/modules/misc/virtio_crypto.ko 2&gt;&gt;/dev/null</span><br><span class="line">[ -f /lib/modules/misc/virtio_pci.ko ] &amp;&amp; /sbin/insmod /lib/modules/misc/virtio_pci.ko 2&gt;&gt;/dev/null</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>全部安装成功后，发现我和网上其他人的白威联通不一样，<code>APP Center</code>里面没有<code>HybridDesk Station</code>，换过几块主板都是这样，在虚拟机里面安装的黑威联通<code>APP Center</code>倒是有<code>HybridDesk Station</code>，但是没法安装成功的虚拟机也没有HDMI输出，控制台会只输出CLI界面。</p>
+<p>回到物理机，HDMI接口有输出，并提示需要安装<code>HD Station</code>，可以通过键盘鼠标可以安装<code>HD Station</code>。安装<code>HD Station</code>后就可以登录使用了。里面有个<code>HD Player</code>的应用实际上就是<code>kodi</code>，还要用鼠标打开并且每次都要输入账号密码。也就是说开机后登录<code>HD Station</code>要输入账号密码，打开各类应用还要再输入一次账号密码。挺反人类的，不知道白的是不是这样，可能只是黑得不完美的问题。</p>
+<p>最后威联通的系统，不管黑的白的，开机关机速度巨慢，WEB管理界面也挺卡的，弃坑了。</p>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="http://www.nasyun.com/thread-76364-1-1.html">http://www.nasyun.com/thread-76364-1-1.html</a><br><a target="_blank" rel="noopener" href="http://www.nasyun.com/thread-76416-1-4.html">http://www.nasyun.com/thread-76416-1-4.html</a><br><a target="_blank" rel="noopener" href="https://www.itpwd.com/462.html">https://www.itpwd.com/462.html</a><br><a target="_blank" rel="noopener" href="http://www.nasyun.com/thread-78440-2-1.html">http://www.nasyun.com/thread-78440-2-1.html</a><br><a target="_blank" rel="noopener" href="http://www.nasyun.com/thread-78384-1-1.html">http://www.nasyun.com/thread-78384-1-1.html</a><br><a target="_blank" rel="noopener" href="http://www.nasyun.com/thread-78263-1-1.html">http://www.nasyun.com/thread-78263-1-1.html</a><br><a target="_blank" rel="noopener" href="http://www.nasyun.com/thread-77518-1-1.html">http://www.nasyun.com/thread-77518-1-1.html</a><br><a target="_blank" rel="noopener" href="http://www.nasyun.com/thread-77449-1-1.html">http://www.nasyun.com/thread-77449-1-1.html</a><br><a target="_blank" rel="noopener" href="http://www.nasyun.com/thread-68740-11-1.html">http://www.nasyun.com/thread-68740-11-1.html</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/qnap/" rel="tag"># qnap</a>
+              <a href="/tags/%E9%BB%91%E5%A8%81%E8%81%94%E9%80%9A/" rel="tag"># 黑威联通</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/202201/asterisk/" rel="prev" title="记录一下配置Asterisk踩的坑">
+      <i class="fa fa-chevron-left"></i> 记录一下配置Asterisk踩的坑
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">D2O</p>
+  <div class="site-description" itemprop="description">blog.d2okkk.net</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/conupefox" title="GitHub → https://github.com/conupefox" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto::d2o@d2okkk.net" title="E-Mail → mailto::d2o@d2okkk.net" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2007 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">D2O</span>
+</div>
+
+        
+
+
+
+
+
+
+<script>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = decodeURI(visitors.id);
+      var title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              Counter('post', '/classes/Counter', { title, url, time: 1 })
+                .then(response => response.json())
+                .then(() => {
+                  leancloudSelector(url).innerText = 1;
+                })
+                .catch(error => {
+                  console.error('Failed to create', error);
+                });
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            let target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    let { app_id, app_key, server_url } = {"enable":true,"app_id":"SYDjiw6UPzCjdiA8VmNPCtCY-gzGzoHsz","app_key":"FzX3nHM3RGxu1jDo8jA24wA8","server_url":null,"security":false};
+    function fetchData(api_server) {
+      var Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    let api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '7ed0d043553f2a84d736',
+      clientSecret: 'a3e18e362694db66619b46f5d79e0f4cd84ab640',
+      repo        : 'conupefox.github.io',
+      owner       : 'conupefox',
+      admin       : ['conupefox'],
+      id          : '6c35fa6684a2e51250f6c1d0a7931db1',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

@@ -28,7 +28,7 @@
 <meta property="og:description" content="前言：本文主要介绍了如何使用Openwrt 官方SDK编译最新版FRR，并使用FRRouting建立VXLAN EVPN网络，实现异地组网。 基本拓扑 1234567891011121314                              +-+--+-+      +-----Internet----------++|RR|++---------Internet-------+">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-03-15T11:52:57.000Z">
-<meta property="article:modified_time" content="2021-03-15T14:06:03.000Z">
+<meta property="article:modified_time" content="2023-02-15T01:18:14.000Z">
 <meta property="article:author" content="D2O">
 <meta property="article:tag" content="openwrt">
 <meta property="article:tag" content="vxlan">
@@ -201,10 +201,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2021-03-15 19:52:57 / 修改时间：22:06:03" itemprop="dateCreated datePublished" datetime="2021-03-15T19:52:57+08:00">2021-03-15</time>
+              <time title="创建时间：2021-03-15 19:52:57" itemprop="dateCreated datePublished" datetime="2021-03-15T19:52:57+08:00">2021-03-15</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-02-15 09:18:14" itemprop="dateModified" datetime="2023-02-15T09:18:14+08:00">2023-02-15</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -269,6 +275,7 @@
 <p>配置完成后会发现BGP会话无法起来，先排除RR的TCP179端口是否已打开。</p>
 <p>回到<code>frr</code>会<code>show bgp neighbor x.x.x.x</code>发现neighbor一直在<em>Waiting for NHT</em></p>
 <p>说明需要添加RR的主机路由到默认网关。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">2023.2.15更新：</span><br><span class="line">只要frr配置ip nht resolve-via-default就可以了，不需要再添加主机路由。</span><br></pre></td></tr></table></figure>
 <p>如果Openwrt是静态ip上网，在luci web里面添加静态路由就可以了。类似这样<code>/etc/config/network</code></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">config route</span><br><span class="line">        option interface &#39;wan&#39;</span><br><span class="line">        option target &#39;x.x.x.x&#39;</span><br><span class="line">        option gateway &#39;192.168.1.1&#39;</span><br></pre></td></tr></table></figure>
 <p>如是PPPOE拨号，就需要使用到ppp-up脚本添加主机路由。<code>/etc/ppp/ip-up.d/pppoe.sh </code></p>
@@ -277,7 +284,7 @@
 <p>登录LUCI WEB，选择网络—接口，新建接口</p>
 <p>两个site分别使用静态地址100.69.0.1/24和100.69.0.2/24，创建桥接到vxlan5，mtu 1450。</p>
 <p>由于Site1和Site2之间的私网是通过dhcp获取地址的，使用<code>/etc/udhcpc.user </code>脚本来触发建立隧道。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">#!&#x2F;bin&#x2F;sh</span><br><span class="line">case &quot;$1&quot; in</span><br><span class="line">bound)</span><br><span class="line">if [ eth0.46 &#x3D; &quot;$&#123;interface&#125;&quot; ]; then</span><br><span class="line">ip route add 10.0.0.0&#x2F;7 via $&#123;router&#125;</span><br><span class="line">ip link del vxlan5</span><br><span class="line">ip link add vxlan5 type vxlan id 5 local $&#123;ip&#125; dstport 4789</span><br><span class="line">fi</span><br><span class="line">;;</span><br><span class="line">esac</span><br><span class="line">exit 0</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">#!&#x2F;bin&#x2F;sh</span><br><span class="line">case &quot;$1&quot; in</span><br><span class="line">bound)</span><br><span class="line">if [ eth0.46 &#x3D; &quot;$&#123;interface&#125;&quot; ]; then</span><br><span class="line">ip route add 10.0.0.0&#x2F;7 via $&#123;router&#125;</span><br><span class="line">ip link del vxlan5</span><br><span class="line">ip link add vxlan5 type vxlan id 5 local $&#123;ip&#125; dstport 4789 nolearning</span><br><span class="line">ip link set vxlan5 type bridge_slave neigh_suppress on learning off</span><br><span class="line">fi</span><br><span class="line">;;</span><br><span class="line">esac</span><br><span class="line">exit 0</span><br></pre></td></tr></table></figure>
 <p>别忘了在防火墙开启UDP 4789，如无意外100.69.0.1和100.69.0.2就可以互相ping通了。</p>
 <p>在Site1和Site2的frr上使用<code>show bgp l2vpn evpn </code>可以看到从RR学习到的Type2和Type3的路由。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">OpenWrt# show bgp l2vpn evpn </span><br><span class="line">BGP table version is 0, local router ID is 198.18.22.130</span><br><span class="line">Status codes: s suppressed, d damped, h history, * valid, &gt; best, i - internal</span><br><span class="line">Origin codes: i - IGP, e - EGP, ? - incomplete</span><br><span class="line">EVPN type-1 prefix: [1]:[ESI]:[EthTag]:[IPlen]:[VTEP-IP]</span><br><span class="line">EVPN type-2 prefix: [2]:[EthTag]:[MAClen]:[MAC]:[IPlen]:[IP]</span><br><span class="line">EVPN type-3 prefix: [3]:[EthTag]:[IPlen]:[OrigIP]</span><br><span class="line">EVPN type-4 prefix: [4]:[ESI]:[IPlen]:[OrigIP]</span><br><span class="line">EVPN type-5 prefix: [5]:[EthTag]:[IPlen]:[IP]</span><br><span class="line"></span><br><span class="line">   Network          Next Hop            Metric LocPrf Weight Path</span><br><span class="line">Route Distinguisher: 198.18.8.244:2</span><br><span class="line">*&gt; [2]:[0]:[48]:[f6:96:37:a3:82:8f]:[32]:[100.69.0.2]</span><br><span class="line">                    11.92.111.32                           0 65005 65008 i</span><br><span class="line">                    RT:65008:5 ET:8</span><br><span class="line">*&gt; [2]:[0]:[48]:[f6:96:37:a3:82:8f]:[128]:[fe80::f496:37ff:fea3:828f]</span><br><span class="line">                    11.92.111.32                           0 65005 65008 i</span><br><span class="line">                    RT:65008:5 ET:8</span><br><span class="line">*&gt; [3]:[0]:[32]:[11.92.111.32]</span><br><span class="line">                    11.92.111.32                           0 65005 65008 i</span><br><span class="line">                    RT:65008:5 ET:8</span><br><span class="line">Route Distinguisher: 198.18.22.130:2</span><br><span class="line">*&gt; [2]:[0]:[48]:[4a:73:1d:22:4c:e3]:[32]:[100.69.0.1]</span><br><span class="line">                    11.94.117.77                       32768 i</span><br><span class="line">                    ET:8 RT:65022:5</span><br><span class="line">*&gt; [2]:[0]:[48]:[4a:73:1d:22:4c:e3]:[128]:[fe80::4873:1dff:fe22:4ce3]</span><br><span class="line">                    11.94.117.77                       32768 i</span><br><span class="line">                    ET:8 RT:65022:5</span><br><span class="line">*&gt; [3]:[0]:[32]:[11.94.117.77]</span><br><span class="line">                    11.94.117.77                       32768 i</span><br><span class="line">                    ET:8 RT:65022:5</span><br></pre></td></tr></table></figure>
@@ -291,6 +298,7 @@
 <li><a target="_blank" rel="noopener" href="https://asciiflow.com/#/">https://asciiflow.com/#/</a></li>
 <li><a target="_blank" rel="noopener" href="https://vincent.bernat.ch/en/blog/2017-vxlan-linux">https://vincent.bernat.ch/en/blog/2017-vxlan-linux</a></li>
 <li><a target="_blank" rel="noopener" href="https://forum.openwrt.org/t/cant-compile-ipk-with-sdk-key-build-signing-key-is-missing/2266/2">https://forum.openwrt.org/t/cant-compile-ipk-with-sdk-key-build-signing-key-is-missing/2266/2</a></li>
+<li><a target="_blank" rel="noopener" href="http://docs.frrouting.org/en/latest/evpn.html">http://docs.frrouting.org/en/latest/evpn.html</a></li>
 </ul>
 
     </div>

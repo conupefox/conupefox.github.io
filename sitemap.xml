@@ -9,6 +9,13 @@
   </url>
   
   <url>
+    <loc>http://blog.d2okkk.net/202402/pve-cloud-init-template-debian/</loc>
+    
+    <lastmod>2024-02-03</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://blog.d2okkk.net/202103/vxlan_evpn_with_frr/</loc>
     
     <lastmod>2023-02-15</lastmod>
@@ -264,6 +271,13 @@
   
   <url>
     <loc>http://blog.d2okkk.net/tags/frr/</loc>
+    <lastmod>2024-02-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://blog.d2okkk.net/tags/cloud-init/</loc>
     <lastmod>2024-02-20</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>

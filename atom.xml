@@ -41,6 +41,29 @@
   </entry>
   
   <entry>
+    <title>PVE创建支持Cloud-init的Debian模板</title>
+    <link href="http://blog.d2okkk.net/202402/pve-cloud-init-template-debian/"/>
+    <id>http://blog.d2okkk.net/202402/pve-cloud-init-template-debian/</id>
+    <published>2024-02-03T08:45:00.000Z</published>
+    <updated>2024-02-03T09:33:55.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>PVE下使用Cloud-init，快速创建最新版本镜像的的小鸡，先记录一下Debian的。</p> <a id="more"></a><p>登录母鸡ssh，然后创建文件<code>[**pve-cloud-init-template-debian.sh**](https://gist.github.com/Jimmy-Z/c4de0d15f89977a358996a171b9db668#file-pve-cloud-init-template-debian-sh)</code>。</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/sh</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># apt install curl</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># obviously change this per your needs</span></span><br><span class="line">VMID=9001</span><br><span class="line">STOR=local-lvm</span><br><span class="line">VER=20240102-1614</span><br><span class="line">URL_PATH=https://mirrors.ustc.edu.cn/debian-cdimage/cloud/bookworm/<span class="variable">$VER</span>/</span><br><span class="line">IMG=debian-12-genericcloud-amd64-<span class="variable">$VER</span>.qcow2</span><br><span class="line"></span><br><span class="line">curl -L -o <span class="variable">$IMG</span> -C - $URL_PATH<span class="variable">$IMG</span></span><br><span class="line"><span class="comment"># https://pve.proxmox.com/wiki/Cloud-Init_Support</span></span><br><span class="line"><span class="comment"># https://pve.proxmox.com/wiki/Qemu/KVM_Virtual_Machines</span></span><br><span class="line">qm create <span class="variable">$VMID</span> --cores 4 --cpu cputype=host --memory 4096 --net0 virtio,bridge=vmbr0 --ostype l26 --serial0 socket --vga serial0</span><br><span class="line">qm importdisk <span class="variable">$VMID</span> <span class="variable">$IMG</span> <span class="variable">$STOR</span></span><br><span class="line">qm <span class="built_in">set</span> <span class="variable">$VMID</span> --scsihw virtio-scsi-single --scsi0 <span class="variable">$STOR</span>:vm-<span class="variable">$VMID</span>-disk-0,discard=on,iothread=<span class="literal">true</span></span><br><span class="line">qm <span class="built_in">set</span> <span class="variable">$VMID</span> --ide2 <span class="variable">$STOR</span>:cloudinit</span><br><span class="line">qm <span class="built_in">set</span> <span class="variable">$VMID</span> --boot c --bootdisk scsi0</span><br><span class="line"></span><br><span class="line">qm template <span class="variable">$VMID</span></span><br></pre></td></tr></table></figure><p>使用脚本会创建出来一个ID为<code>9001</code>的虚拟机模板，回到在PVE界面。克隆一个新的虚拟机出来就是一个全新的Debian系统了。在虚拟机-Cloud-init选项处就可以配置账号密码，ip地址。</p><p>默认情况下，ssh不允许使用密码登录，也不允许root登录。进入系统后修改<code>/etc/ssh/sshd_config</code>，修改两个选项。</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PasswordAuthentication yes</span><br><span class="line">PermitRootLogin yes</span><br></pre></td></tr></table></figure><p>重启ssh服务。登录后修改APT源为国内</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># mirrors.utsc.edu.cn</span><br><span class="line"># Downlaod and Install debian 12 sourcelist</span><br><span class="line">curl -fsSL https:&#x2F;&#x2F;mirrors.ustc.edu.cn&#x2F;repogen&#x2F;conf&#x2F;debian-https-4-bookworm -o  &#x2F;etc&#x2F;apt&#x2F;sources.list</span><br></pre></td></tr></table></figure><p>Enjoy~~</p><p>参考：</p><p><a href="https://gist.github.com/Jimmy-Z/c4de0d15f89977a358996a171b9db668">https://gist.github.com/Jimmy-Z/c4de0d15f89977a358996a171b9db668</a></p><p><a href="https://mirrors.ustc.edu.cn/help/debian.html">https://mirrors.ustc.edu.cn/help/debian.html</a></p><p><a href="https://mirrors.ustc.edu.cn/repogen/">https://mirrors.ustc.edu.cn/repogen/</a></p><p><a href="https://www.dgpyy.com/archives/174/">https://www.dgpyy.com/archives/174/</a></p>]]></content>
+    
+    
+    <summary type="html">&lt;p&gt;PVE下使用Cloud-init，快速创建最新版本镜像的的小鸡，先记录一下Debian的。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="系统" scheme="http://blog.d2okkk.net/categories/%E7%B3%BB%E7%BB%9F/"/>
+    
+    
+    <category term="proxmox ve" scheme="http://blog.d2okkk.net/tags/proxmox-ve/"/>
+    
+    <category term="cloud-init" scheme="http://blog.d2okkk.net/tags/cloud-init/"/>
+    
+  </entry>
+  
+  <entry>
     <title>关于黑威联通 QTS的折腾记录</title>
     <link href="http://blog.d2okkk.net/202302/qnap_qts/"/>
     <id>http://blog.d2okkk.net/202302/qnap_qts/</id>

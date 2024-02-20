@@ -20,21 +20,21 @@
     var CONFIG = {"hostname":"blog.d2okkk.net","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="记录一下我自己用的CentOS 7的开局配置。 查看CentOS版本，修改主机名、修改时区、升级到最新发行版 12345cat &#x2F;etc&#x2F;redhat-release hostnamectl --static set-hostname D2O-VPSrm -f &#x2F;etc&#x2F;localtimeln -s &#x2F;usr&#x2F;share&#x2F;zoneinfo&#x2F;Asia&#x2F;Shanghai &#x2F;etc&#x2F;localtimey">
+  <meta name="description" content="Zabbix 的安装过程并不简单，而且各种环境排列组合版本众多，所以有必要记录一下自己的安装过程，以便日后翻看。 我这里记录的是Debian12+Zabbix 6.0 LTS的安装过程，基本上是照着Zabbix官网来的，添加了一些本地化的适配。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="CentOS7开局配置记录">
-<meta property="og:url" content="http://blog.d2okkk.net/201709/centos-init/index.html">
+<meta property="og:title" content="Debian12+Zabbix 6.0 LTS部署记录">
+<meta property="og:url" content="http://blog.d2okkk.net/202402/install_zabbix_6/index.html">
 <meta property="og:site_name" content="D2O | 重水">
-<meta property="og:description" content="记录一下我自己用的CentOS 7的开局配置。 查看CentOS版本，修改主机名、修改时区、升级到最新发行版 12345cat &#x2F;etc&#x2F;redhat-release hostnamectl --static set-hostname D2O-VPSrm -f &#x2F;etc&#x2F;localtimeln -s &#x2F;usr&#x2F;share&#x2F;zoneinfo&#x2F;Asia&#x2F;Shanghai &#x2F;etc&#x2F;localtimey">
+<meta property="og:description" content="Zabbix 的安装过程并不简单，而且各种环境排列组合版本众多，所以有必要记录一下自己的安装过程，以便日后翻看。 我这里记录的是Debian12+Zabbix 6.0 LTS的安装过程，基本上是照着Zabbix官网来的，添加了一些本地化的适配。">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2017-09-14T07:27:00.000Z">
-<meta property="article:modified_time" content="2017-09-14T09:34:18.000Z">
+<meta property="article:published_time" content="2024-02-20T12:45:00.000Z">
+<meta property="article:modified_time" content="2024-02-20T14:01:44.000Z">
 <meta property="article:author" content="D2O">
-<meta property="article:tag" content="linux">
-<meta property="article:tag" content="centos">
+<meta property="article:tag" content="zabbix">
+<meta property="article:tag" content="debian">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://blog.d2okkk.net/201709/centos-init/">
+<link rel="canonical" href="http://blog.d2okkk.net/202402/install_zabbix_6/">
 
 
 <script id="page-configurations">
@@ -47,7 +47,7 @@
   };
 </script>
 
-  <title>CentOS7开局配置记录 | D2O | 重水</title>
+  <title>Debian12+Zabbix 6.0 LTS部署记录 | D2O | 重水</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-105973717-1"></script>
     <script>
@@ -178,7 +178,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://blog.d2okkk.net/201709/centos-init/">
+    <link itemprop="mainEntityOfPage" href="http://blog.d2okkk.net/202402/install_zabbix_6/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -191,7 +191,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          CentOS7开局配置记录
+          Debian12+Zabbix 6.0 LTS部署记录
         </h1>
 
         <div class="post-meta">
@@ -202,7 +202,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2017-09-14 16:27:00 / 修改时间：18:34:18" itemprop="dateCreated datePublished" datetime="2017-09-14T16:27:00+09:00">2017-09-14</time>
+              <time title="创建时间：2024-02-20 21:45:00 / 修改时间：23:01:44" itemprop="dateCreated datePublished" datetime="2024-02-20T21:45:00+09:00">2024-02-20</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -215,7 +215,7 @@
             </span>
 
           
-            <span id="/201709/centos-init/" class="post-meta-item leancloud_visitors" data-flag-title="CentOS7开局配置记录" title="阅读次数">
+            <span id="/202402/install_zabbix_6/" class="post-meta-item leancloud_visitors" data-flag-title="Debian12+Zabbix 6.0 LTS部署记录" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -232,26 +232,47 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>记录一下我自己用的CentOS 7的开局配置。</p>
-<p>查看CentOS版本，修改主机名、修改时区、升级到最新发行版</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cat /etc/redhat-release </span><br><span class="line">hostnamectl --static set-hostname D2O-VPS</span><br><span class="line">rm -f /etc/localtime</span><br><span class="line">ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime</span><br><span class="line">yum update</span><br></pre></td></tr></table></figure>
+        <p>Zabbix 的安装过程并不简单，而且各种环境排列组合版本众多，所以有必要记录一下自己的安装过程，以便日后翻看。</p>
+<p>我这里记录的是Debian12+Zabbix 6.0 LTS的安装过程，基本上是照着Zabbix官网来的，添加了一些本地化的适配。</p>
  <a id="more"></a>
-<p>CentOS7默认没有ifconfig nslookup等工具，安装之。用回iptables代替默认的firewalld。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">yum install -y bind-utils net-tools htop mlocate initscripts.x86_64 </span><br><span class="line">updatedb</span><br><span class="line">systemctl stop firewalld </span><br><span class="line">systemctl mask firewalld </span><br><span class="line">yum install -y iptables-services policycoreutils </span><br><span class="line">systemctl <span class="built_in">enable</span> iptables </span><br><span class="line">systemctl <span class="built_in">enable</span> ip6tables</span><br><span class="line">systemctl start iptables </span><br><span class="line">systemctl start ip6tables</span><br></pre></td></tr></table></figure>
-<p>关闭selinux</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/selinux/config</span><br><span class="line"> SELINUX=disabled</span><br><span class="line"> </span><br><span class="line">setenforce 0</span><br></pre></td></tr></table></figure>
-<p>修改ssh端口，修改ssh超时自动登出时间，开放ssh防火墙</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/ssh/sshd_config </span><br><span class="line"> Port xx22</span><br><span class="line">vi /etc/profile</span><br><span class="line"> <span class="built_in">export</span> TMOUT=0</span><br></pre></td></tr></table></figure>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport xx22 -j ACCEPT</span><br><span class="line">service iptables save</span><br></pre></td></tr></table></figure>
-<p>开启iptables转发，开启内核转发，关闭rp_filter。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">iptables -I FORWARD -j ACCEPT</span><br><span class="line">service iptables save</span><br></pre></td></tr></table></figure>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/sysctl.conf </span><br><span class="line"> net.ipv4.ip_forward = 1 </span><br><span class="line"> net.ipv6.conf.all.forwarding = 1 </span><br><span class="line"> net.ipv4.conf.default.rp_filter = 0 </span><br><span class="line"> net.ipv4.conf.all.rp_filter = 0</span><br><span class="line"> </span><br><span class="line">sysctl -p</span><br></pre></td></tr></table></figure>
-<p>导入epel源，安装htop snmp等常用工具</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yum install -y epel-release</span><br><span class="line">yum install -y htop net-snmp</span><br></pre></td></tr></table></figure>
-<p>配置snmp</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ~ </span><br><span class="line"> mv /etc/snmp/snmpd.conf /etc/snmp/snmpd.conf.bak </span><br><span class="line"> vi /etc/snmp/snmpd.conf</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"> com2sec notConfigUser default d2o</span><br><span class="line"> group notConfigGroup v1 notConfigUser </span><br><span class="line"> group notConfigGroup v2c notConfigUser</span><br><span class="line"></span><br><span class="line"> view systemview included .1.3.6.1.2.1.1 </span><br><span class="line"> view systemview included .1.3.6.1.2.1.25.1.1</span><br><span class="line"></span><br><span class="line"> access notConfigGroup <span class="string">&quot;&quot;</span> any noauth exact all none none</span><br><span class="line"></span><br><span class="line"> view all included .1 80</span><br><span class="line"></span><br><span class="line"> syslocation HongKong </span><br><span class="line"> syscontact D2O</span><br><span class="line"></span><br><span class="line"> dontLogTCPWrappersConnects yes</span><br><span class="line"></span><br><span class="line"> extend .1.3.6.1.4.1.2021.54 active_connects /bin/cat /proc/sys/net/netfilter/nf_conntrack_count </span><br><span class="line"> extend .1.3.6.1.4.1.2021.55 Route /bin/sh /etc/snmp/route_prefixes.sh</span><br><span class="line"></span><br><span class="line">systemctl <span class="built_in">enable</span> snmpd</span><br><span class="line">systemctl start snmpd</span><br><span class="line">iptables -I INPUT -p udp -m udp --dport 161 -j ACCEPT </span><br><span class="line">service iptables save</span><br></pre></td></tr></table></figure>
+
+<p>组件配置根据个人喜好，我用了Debian12+mariadb+Apache。<del>(其实不是很懂跟着教程选的)</del></p>
+<p>Install Zabbix repository，使用清华大学的源提高速度</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https://mirror.tuna.tsinghua.edu.cn/zabbix/zabbix/6.0/debian/pool/main/z/zabbix-release/zabbix-release_6.0-5%2Bdebian12_all.deb</span><br><span class="line">dpkg -i zabbix-release_6.0-5+debian12_all.deb</span><br></pre></td></tr></table></figure>
+<p>安装完deb包后编辑<code>/etc/apt/sources.list.d/zabbix.list</code>，启用清华大学的源</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Zabbix main repository</span></span><br><span class="line">deb https://mirror.tuna.tsinghua.edu.cn/zabbix/zabbix/6.0/debian bookworm main</span><br><span class="line">deb-src https://mirror.tuna.tsinghua.edu.cn/zabbix/zabbix/6.0/debian bookworm main</span><br></pre></td></tr></table></figure>
+<p>安装Zabbix server，Web前端，agent</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt install zabbix-server-mysql zabbix-frontend-php zabbix-apache-conf zabbix-sql-scripts zabbix-agent</span><br></pre></td></tr></table></figure>
+<p>安装数据库，并进行安全初始化配置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">apt install mariadb-server mariadb-client</span><br><span class="line">mysql_secure_installation</span><br></pre></td></tr></table></figure>
+<p>根据向导一路回答修改root密码，删除匿名用户，使用sock连接，删除测试数据库之类的。</p>
+<p>完成初始化后再创建zabbix数据库和用户</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># mysql -uroot -p</span><br><span class="line">这里输入root账号的密码</span><br><span class="line">mysql&gt; create database zabbix character set utf8mb4 collate utf8mb4_bin;</span><br><span class="line">mysql&gt; create user zabbix@localhost identified by &#39;zabbixpass&#39;; 这里是sql用户zabbix的密码</span><br><span class="line">mysql&gt; grant all privileges on zabbix.* to zabbix@localhost;</span><br><span class="line">mysql&gt; set global log_bin_trust_function_creators &#x3D; 1;</span><br><span class="line">mysql&gt; quit;</span><br></pre></td></tr></table></figure>
+<p>导入初始架构和数据，系统将提示您输入新创建的密码。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># zcat &#x2F;usr&#x2F;share&#x2F;zabbix-sql-scripts&#x2F;mysql&#x2F;server.sql.gz | mysql --default-character-set&#x3D;utf8mb4 -uzabbix -p zabbix</span><br><span class="line">执行后悔提示输入sql用户zabbix的密码，即上面一步设置的那个</span><br></pre></td></tr></table></figure>
+<p>Disable log_bin_trust_function_creators option after importing database schema.<del>(不知道是什么意思)</del></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># mysql -uroot -p</span><br><span class="line">这里输入root账号的密码</span><br><span class="line">mysql&gt; set global log_bin_trust_function_creators &#x3D; 0;</span><br><span class="line">mysql&gt; quit;</span><br></pre></td></tr></table></figure>
+<p>为Zabbix server配置数据库，编辑配置文件 <code>/etc/zabbix/zabbix_server.conf</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DBPassword&#x3D;zabbixpass  ##这里是sql用户zabbix的密码</span><br></pre></td></tr></table></figure>
+<p>启动Zabbix server和agent进程，并为它们设置开机自启：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># systemctl restart zabbix-server zabbix-agent apache2</span><br><span class="line"># systemctl enable zabbix-server zabbix-agent apache2</span><br></pre></td></tr></table></figure>
+<p>然后使用浏览器打开 <a target="_blank" rel="noopener" href="http://server_ip/zabbix%EF%BC%8C%E8%BF%9B%E5%85%A5zabbix%E7%9A%84%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE%E7%95%8C%E9%9D%A2">http://SERVER_IP/zabbix，进入zabbix的安装配置界面</a></p>
+<p>安装Zabbix的时候会发现无法选择中文语音，需要配置系统的locales，添加中文支持。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dpkg-reconfigure locales</span><br><span class="line">选中zh_CN.UTF-8 UTF-8</span><br></pre></td></tr></table></figure>
+<p>添加中文locales后，回到Zabbix的安装界面，发现已经可以选择中文了。然后基本上就是一直按下一步安装，连接数据库的时候使用zabbixpass，也就是sql用户zabbix的密码。</p>
+<p>安装完成后使用默认用户名密码Admin/zabbix登录，登录后第一件事就是修改管理员账号和密码。</p>
+<p>然后会发现虽然界面是中文，但是图片里面的中文字都是方块。原因是图片里面的字体用的是dejavu，这种字体不支持中文。安装网上很多教程都是上传一个Windows的字体再修改<code>/usr/share/zabbix/include/defines.inc.php</code>里面的配置，但是我觉得这样不太合适。</p>
+<p>我使用了另外一种办法。</p>
+<p>首先，安装文泉驿中文字体。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">apt install fonts-wqy-microhei fontconfig</span><br><span class="line">fc-cache</span><br><span class="line">fc-list</span><br><span class="line">可以看到中文字体安装成功</span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;truetype&#x2F;wqy&#x2F;wqy-microhei.ttc: 文泉驿等宽微米黑,WenQuanYi Micro Hei Mono,文泉驛等寬微米黑:style&#x3D;Regular</span><br></pre></td></tr></table></figure>
+<p>然后把<code>/etc/alternatives/zabbix-frontend-font</code>这个软连接删掉，重新建一个软连接到新安装的字体。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rm &#x2F;etc&#x2F;alternatives&#x2F;zabbix-frontend-font</span><br><span class="line">ln -s &#x2F;usr&#x2F;share&#x2F;fonts&#x2F;truetype&#x2F;wqy&#x2F;wqy-microhei.ttc &#x2F;etc&#x2F;alternatives&#x2F;zabbix-frontend-font</span><br></pre></td></tr></table></figure>
+<p>回到web页面，刷新一下图片里面的中文就出来了。</p>
+<p>Enjoy~~</p>
 <p>参考：</p>
-<p><a target="_blank" rel="noopener" href="http://blog.csdn.net/conupefox/article/details/49369035">http://blog.csdn.net/conupefox/article/details/49369035</a><br><a target="_blank" rel="noopener" href="http://www.jb51.net/article/106385.htm">http://www.jb51.net/article/106385.htm</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.zabbix.com/cn/download?zabbix=6.0&amp;os_distribution=debian&amp;os_version=12&amp;components=server_frontend_agent&amp;db=mysql&amp;ws=apache">https://www.zabbix.com/cn/download?zabbix=6.0&amp;os_distribution=debian&amp;os_version=12&amp;components=server_frontend_agent&amp;db=mysql&amp;ws=apache</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.tecmint.com/install-zabbix-on-debian-10/">https://www.tecmint.com/install-zabbix-on-debian-10/</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/Yang838020787/article/details/118141643">https://blog.csdn.net/Yang838020787/article/details/118141643</a></p>
 
     </div>
 
@@ -261,8 +282,8 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/linux/" rel="tag"># linux</a>
-              <a href="/tags/centos/" rel="tag"># centos</a>
+              <a href="/tags/zabbix/" rel="tag"># zabbix</a>
+              <a href="/tags/debian/" rel="tag"># debian</a>
           </div>
 
         
@@ -270,11 +291,11 @@
 
         
     <div class="post-nav">
-      <div class="post-nav-item"></div>
       <div class="post-nav-item">
-    <a href="/201709/bgpdump/" rel="next" title="编译安装libbgpdump IRRToolset等BGP相关软件包">
-      编译安装libbgpdump IRRToolset等BGP相关软件包 <i class="fa fa-chevron-right"></i>
+    <a href="/202302/qnap_qts/" rel="prev" title="关于黑威联通 QTS的折腾记录">
+      <i class="fa fa-chevron-left"></i> 关于黑威联通 QTS的折腾记录
     </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -555,7 +576,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'conupefox.github.io',
       owner       : 'conupefox',
       admin       : ['conupefox'],
-      id          : '50e2238645e6677cbd01451d88fbb1c6',
+      id          : 'eb2d1ffdab3abec504678ca68bffb5cc',
         language: '',
       distractionFreeMode: true
     });

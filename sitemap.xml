@@ -249,6 +249,13 @@
   </url>
   
   <url>
+    <loc>http://blog.d2okkk.net/tags/cloud-init/</loc>
+    <lastmod>2024-06-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>http://blog.d2okkk.net/tags/qnap/</loc>
     <lastmod>2024-06-11</lastmod>
     <changefreq>daily</changefreq>
@@ -271,13 +278,6 @@
   
   <url>
     <loc>http://blog.d2okkk.net/tags/frr/</loc>
-    <lastmod>2024-06-11</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://blog.d2okkk.net/tags/cloud-init/</loc>
     <lastmod>2024-06-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>

@@ -36,11 +36,11 @@
     
     <category term="openwrt" scheme="http://blog.d2okkk.net/tags/openwrt/"/>
     
-    <category term="pve" scheme="http://blog.d2okkk.net/tags/pve/"/>
-    
     <category term="光猫" scheme="http://blog.d2okkk.net/tags/%E5%85%89%E7%8C%AB/"/>
     
     <category term="pt921g" scheme="http://blog.d2okkk.net/tags/pt921g/"/>
+    
+    <category term="pve" scheme="http://blog.d2okkk.net/tags/pve/"/>
     
     <category term="nas" scheme="http://blog.d2okkk.net/tags/nas/"/>
     
@@ -195,9 +195,9 @@
     <category term="Home Lab" scheme="http://blog.d2okkk.net/categories/Home-Lab/"/>
     
     
-    <category term="proxmox ve" scheme="http://blog.d2okkk.net/tags/proxmox-ve/"/>
-    
     <category term="pve" scheme="http://blog.d2okkk.net/tags/pve/"/>
+    
+    <category term="proxmox ve" scheme="http://blog.d2okkk.net/tags/proxmox-ve/"/>
     
     <category term="XPEnology" scheme="http://blog.d2okkk.net/tags/XPEnology/"/>
     
@@ -252,6 +252,8 @@
     <category term="Home Lab" scheme="http://blog.d2okkk.net/categories/Home-Lab/"/>
     
     
+    <category term="pve" scheme="http://blog.d2okkk.net/tags/pve/"/>
+    
     <category term="debian" scheme="http://blog.d2okkk.net/tags/debian/"/>
     
     <category term="proxmox ve" scheme="http://blog.d2okkk.net/tags/proxmox-ve/"/>
@@ -259,8 +261,6 @@
     <category term="clover" scheme="http://blog.d2okkk.net/tags/clover/"/>
     
     <category term="uefi" scheme="http://blog.d2okkk.net/tags/uefi/"/>
-    
-    <category term="pve" scheme="http://blog.d2okkk.net/tags/pve/"/>
     
   </entry>
   

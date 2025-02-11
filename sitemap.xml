@@ -158,6 +158,34 @@
   </url>
   
   <url>
+    <loc>http://blog.d2okkk.net/tags/%E5%85%89%E7%8C%AB/</loc>
+    <lastmod>2025-02-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://blog.d2okkk.net/tags/pt921g/</loc>
+    <lastmod>2025-02-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://blog.d2okkk.net/tags/pve/</loc>
+    <lastmod>2025-02-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://blog.d2okkk.net/tags/nas/</loc>
+    <lastmod>2025-02-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>http://blog.d2okkk.net/tags/linux/</loc>
     <lastmod>2025-02-11</lastmod>
     <changefreq>daily</changefreq>
@@ -201,13 +229,6 @@
   
   <url>
     <loc>http://blog.d2okkk.net/tags/uefi/</loc>
-    <lastmod>2025-02-11</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://blog.d2okkk.net/tags/pve/</loc>
     <lastmod>2025-02-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -332,27 +353,6 @@
     <priority>0.6</priority>
   </url>
   
-  <url>
-    <loc>http://blog.d2okkk.net/tags/%E5%85%89%E7%8C%AB/</loc>
-    <lastmod>2025-02-11</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://blog.d2okkk.net/tags/pt921g/</loc>
-    <lastmod>2025-02-11</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://blog.d2okkk.net/tags/nas/</loc>
-    <lastmod>2025-02-11</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
 
   
   <url>
@@ -363,14 +363,14 @@
   </url>
   
   <url>
-    <loc>http://blog.d2okkk.net/categories/Home-Lab/</loc>
+    <loc>http://blog.d2okkk.net/categories/%E7%BD%91%E7%BB%9C/</loc>
     <lastmod>2025-02-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://blog.d2okkk.net/categories/%E7%BD%91%E7%BB%9C/</loc>
+    <loc>http://blog.d2okkk.net/categories/Home-Lab/</loc>
     <lastmod>2025-02-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>

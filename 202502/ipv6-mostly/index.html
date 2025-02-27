@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.d2okkk.net","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文介绍基于OpenWrt 23.05，构建一个IPv6-mostly家庭网络。 目前国内三大运营商的家庭宽带基本实现了IPv6全覆盖。那么在2025年的今天，我们可以抛弃IPv4，只使用ipv6了吗？基于这个问题我在家里搞了一个纯ipv6的试验网。 所谓IPv6-mostly，个人理解就是在一个双栈的网络下。对于支持IPv6-Only的终端只使用IPv6协议栈，不使用IPv4协议栈，在访问IPv">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于OpenWrt+NAT64构建IPV6-mostly网络">
+<meta property="og:url" content="http://blog.d2okkk.net/202502/ipv6-mostly/index.html">
+<meta property="og:site_name" content="D2O | 重水">
+<meta property="og:description" content="本文介绍基于OpenWrt 23.05，构建一个IPv6-mostly家庭网络。 目前国内三大运营商的家庭宽带基本实现了IPv6全覆盖。那么在2025年的今天，我们可以抛弃IPv4，只使用ipv6了吗？基于这个问题我在家里搞了一个纯ipv6的试验网。 所谓IPv6-mostly，个人理解就是在一个双栈的网络下。对于支持IPv6-Only的终端只使用IPv6协议栈，不使用IPv4协议栈，在访问IPv">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-02-27T05:23:00.000Z">
+<meta property="article:modified_time" content="2025-02-27T03:12:06.000Z">
+<meta property="article:author" content="D2O">
+<meta property="article:tag" content="openwrt">
+<meta property="article:tag" content="jool">
+<meta property="article:tag" content="nat64">
+<meta property="article:tag" content="dns64">
+<meta property="article:tag" content="ipv6">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://blog.d2okkk.net/202502/ipv6-mostly/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>基于OpenWrt+NAT64构建IPV6-mostly网络 | D2O | 重水</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-105973717-1"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-105973717-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="D2O | 重水" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">D2O | 重水</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">恭喜您发现本站!</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://blog.d2okkk.net/202502/ipv6-mostly/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="D2O">
+      <meta itemprop="description" content="blog.d2okkk.net">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="D2O | 重水">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          基于OpenWrt+NAT64构建IPV6-mostly网络
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-02-27 14:23:00 / 修改时间：12:12:06" itemprop="dateCreated datePublished" datetime="2025-02-27T14:23:00+09:00">2025-02-27</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BD%91%E7%BB%9C/" itemprop="url" rel="index"><span itemprop="name">网络</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/202502/ipv6-mostly/" class="post-meta-item leancloud_visitors" data-flag-title="基于OpenWrt+NAT64构建IPV6-mostly网络" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文介绍基于OpenWrt 23.05，构建一个IPv6-mostly家庭网络。</p>
+<p>目前国内三大运营商的家庭宽带基本实现了IPv6全覆盖。那么在2025年的今天，我们可以抛弃IPv4，只使用ipv6了吗？基于这个问题我在家里搞了一个纯ipv6的试验网。</p>
+<p>所谓<strong>IPv6-mostly</strong>，个人理解就是在一个双栈的网络下。对于支持IPv6-Only的终端只使用IPv6协议栈，不使用IPv4协议栈，在访问IPv4网络时通过NAT64进行协议栈转换。对于仍然需要使用IPv4的终端，仍然维持双栈配置，从而实现平滑过渡。</p>
+<p>这里还涉及到一系列的过渡技术，包括NAT64、DNS64、PREF64、DHCP Option 108、464XLT等。</p>
+ <a id="more"></a>
+
+<h2 id="终端支持情况"><a href="#终端支持情况" class="headerlink" title="终端支持情况"></a>终端支持情况</h2><p>问了AI，现代的操作系统对IPv6-Only的支持情况已经很好了。基本上手机的操作系统都能很好适应IPv6-Only，因为app版本迭代快，并且有相应的审核机制在这里。如果一个app不支持IPv6，那么他很难上架到应用商店。</p>
+<p>Windows 这边，系统层面是没问题了。但是为了兼容要老旧程序，IPv6-Only的支持的情况实际上还是需要看具体的软件。</p>
+<p>以下是AI给出的答案，仅供参考，生成时间为2025年2月。</p>
+<h3 id="总结对比"><a href="#总结对比" class="headerlink" title="总结对比"></a><strong>总结对比</strong></h3><table>
+<thead>
+<tr>
+<th align="left">平台</th>
+<th align="left">系统版本要求</th>
+<th align="left">核心技术</th>
+<th align="left">开发者适配重点</th>
+<th align="left">局限性</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>Android</strong></td>
+<td align="left">5.0+（部分功能需更高版本）</td>
+<td align="left">464XLAT、SLAAC</td>
+<td align="left">避免IPv4硬编码，替换底层Socket API</td>
+<td align="left">设备碎片化，DHCPv6支持不足</td>
+</tr>
+<tr>
+<td align="left"><strong>iOS</strong></td>
+<td align="left">9.0+</td>
+<td align="left">DNS64/NAT64、CLAT集成</td>
+<td align="left">使用高层API，禁用IP地址硬编码</td>
+<td align="left">低版本iOS（&lt;9.0）不兼容IPv6-only</td>
+</tr>
+<tr>
+<td align="left"><strong>Windows</strong></td>
+<td align="left">Windows 10 1703+</td>
+<td align="left">464XLAT、NAT64</td>
+<td align="left">适配双栈API，优化企业级网络配置</td>
+<td align="left">老旧版本需手动配置IPv6</td>
+</tr>
+</tbody></table>
+<h2 id="建立IPv6-Only-的vlan"><a href="#建立IPv6-Only-的vlan" class="headerlink" title="建立IPv6-Only 的vlan"></a>建立IPv6-Only 的vlan</h2><p>为了不影响原有使用的网络和方便调试，这里先新建一个vlan只配置IPv6地址。</p>
+<p>我这里运营商给到的DHCPv6-PD前缀是一段/60的，可以划分出2个/61，或者4个/62，或者8个/63，或者16个/64子网。</p>
+<p>在主网关上新建一个接口命名为lan8，使用静态地址协议，关联到eth0.8，表示eth0打上vlan tag 8，不配置IPv4，IPv6分配长度/61，表示这个接口会申请一段/61的地址，IPv6 分配提示8，表示会从DHCPv6-PD前缀的第8个ID开始申请地址。</p>
+<p>例如运营商给我的DHCPv6-PD是2001:db8:d20::/60，那这个接口分配的地址将会是2001:db8:d20:8::/61。</p>
+<p><code>/etc/config/network</code>配置如下。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">config interface <span class="string">&#x27;lan8&#x27;</span></span><br><span class="line">        option proto <span class="string">&#x27;static&#x27;</span></span><br><span class="line">        option device <span class="string">&#x27;eth0.8&#x27;</span></span><br><span class="line">        option ip6assign <span class="string">&#x27;61&#x27;</span></span><br><span class="line">        option ip6hint <span class="string">&#x27;8&#x27;</span></span><br></pre></td></tr></table></figure>
+<p>lan8接口的DHCP服务器页面勾选”忽略此接口”，表示关闭DHCPv4服务器。RA 服务和DHCPv6 服务均配置为服务器模式，勾选启用 SLAAC，IPv6 RA设置RA 标记增加M标记。<code>/etc/config/dhcp</code>配置如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">config dhcp &#39;lan8&#39;</span><br><span class="line">        option interface &#39;lan8&#39;</span><br><span class="line">        option start &#39;100&#39;</span><br><span class="line">        option limit &#39;150&#39;</span><br><span class="line">        option leasetime &#39;12h&#39;</span><br><span class="line">        option ra &#39;server&#39;</span><br><span class="line">        option dhcpv6 &#39;server&#39;</span><br><span class="line">        option ignore &#39;1&#39;</span><br><span class="line">        list ra_flags &#39;managed-config&#39;</span><br><span class="line">        list ra_flags &#39;other-config&#39;</span><br></pre></td></tr></table></figure>
+<p>配置好后，把电脑接入这个vlan，会发现只能自动获取到IPv6地址，访问<a target="_blank" rel="noopener" href="https://ipv6.test-ipv6.com/">ipv6.test-ipv6.com</a>，他会告诉我：你只接入了 IPv6 互联网，没有接入 IPv4。你可真勇敢！</p>
+<p>访问了一些比较常见的网站，例如淘宝、京东、百度贴吧、B站大部分都可以正常使用，不是只有首页能打开那种，点进去图片和视频都能正常加载，和几年前比确实进步很大。</p>
+<p>也有不能用的，例如：百度新闻、百度地图、高德地图、bing搜索、deepseek、豆瓣、github、csdn等。</p>
+<h2 id="配置NAT64"><a href="#配置NAT64" class="headerlink" title="配置NAT64"></a>配置NAT64</h2><p>为了解决转换到IPv6-only后还需要访问IPv4的问题，我这里在旁路增加一台OpenWrt设备，负责实现NAT64和DNS64。</p>
+<p>新增的OpenWrt设备，名字就叫NAT64吧，Wan口接入vlan2，也就是原来在用的双栈vlan，配置静态IPv4地址。Lan口接入vlan8获取自动获取IPv6地址。</p>
+<p>NAT64和NAT44道理是差不多的，首先所有的IPv4地址全部映射到一个NAT64的前缀上，例如64:ff9b::/96，这是一个NAT64的通用前缀，当然也可以跟据实际需要自定义其他前缀。</p>
+<p>当vlan8的终端想去访问192.0.2.1的时候，通过DNS64域名解析让他实际去访问64:ff9b::192.0.2.1，流量会走终端的默认路由到达主网关，在主网关上把64:ff9b::/96这个IP段路由到NAT64设备，NAT64设备进行地址转换后以wan口vlan2 的IPv4作为源地址，192.0.2.1作为目标地址走NAT64设备的默认路由到达主网关，主网关再进行NAT44出互联网。</p>
+<p>在OpenWrt里，使用jool可以实现NAT64转换，安装jool。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">opkg update</span><br><span class="line">opkg install kmod-jool-netfilter jool-tools-netfilter</span><br></pre></td></tr></table></figure>
+<p>安装完成后在/etc/jool/jool-nat64.conf.json已经有很多默认的参数，使用默认参数基本上也可以满足要求，在日后遇到瓶颈时候再来深入微调。</p>
+<p>但是有几个地方是需要改的，pool4是NAT64转换后使用的IPv4地址池。我这里只是用1个地址，改成NAT64设备的Wan口IPv4地址。也可以分配一个地址块，这和IPv4 NAT地址池的概念是类似的。如果分配一个地址块，需要在主网关上把地址块路由过来。</p>
+<p>其次就是端口范围，由于我使用的是接口地址，所以端口范围最好在<code>sysctl net.ipv4.ip_local_port_range</code>的范围内。默认的范围是</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net.ipv4.ip_local_port_range &#x3D; 32768    60999</span><br></pre></td></tr></table></figure>
+<p>在<code>/etc/sysctl.conf</code>，加入以下一段，把端口范围改大一点，然后<code>sysctl -p</code>应用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net.ipv4.ip_local_port_range &#x3D; 32768    65535</span><br></pre></td></tr></table></figure>
+<p>附上<code>/etc/jool/jool-nat64.conf.json</code>的完整配置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">        &quot;comment&quot;: &#123;</span><br><span class="line">                &quot;description&quot;: &quot;Sample full NAT64 configuration.&quot;,</span><br><span class="line">                &quot;notes&quot;: [</span><br><span class="line">                        &quot;192.0.2&#x2F;24 and 2001:db8::&#x2F;32 are documentation blocks&quot;,</span><br><span class="line">                        &quot;(RFC 5737 and RFC 3849), and you WILL need to change or&quot;,</span><br><span class="line">                        &quot;remove them for your setup.&quot;</span><br><span class="line">                ],</span><br><span class="line">                &quot;last update&quot;: &quot;2022-02-09&quot;</span><br><span class="line">        &#125;,</span><br><span class="line"></span><br><span class="line">        &quot;instance&quot;: &quot;default&quot;,</span><br><span class="line">        &quot;framework&quot;: &quot;netfilter&quot;,</span><br><span class="line"></span><br><span class="line">        &quot;global&quot;: &#123;</span><br><span class="line">                &quot;manually-enabled&quot;: true,</span><br><span class="line">                &quot;pool6&quot;: &quot;64:ff9b::&#x2F;96&quot;,</span><br><span class="line">                &quot;lowest-ipv6-mtu&quot;: 1280,</span><br><span class="line">                &quot;logging-debug&quot;: false,</span><br><span class="line">                &quot;zeroize-traffic-class&quot;: false,</span><br><span class="line">                &quot;override-tos&quot;: false,</span><br><span class="line">                &quot;tos&quot;: 0,</span><br><span class="line">                &quot;mtu-plateaus&quot;: [</span><br><span class="line">                        65535, 32000, 17914, 8166,</span><br><span class="line">                        4352, 2002, 1492, 1006,</span><br><span class="line">                        508, 296, 68</span><br><span class="line">                ],</span><br><span class="line">                &quot;address-dependent-filtering&quot;: false,</span><br><span class="line">                &quot;drop-externally-initiated-tcp&quot;: false,</span><br><span class="line">                &quot;drop-icmpv6-info&quot;: false,</span><br><span class="line">                &quot;source-icmpv6-errors-better&quot;: true,</span><br><span class="line">                &quot;f-args&quot;: 11,</span><br><span class="line">                &quot;handle-rst-during-fin-rcv&quot;: false,</span><br><span class="line">                &quot;tcp-est-timeout&quot;: &quot;2:00:00&quot;,</span><br><span class="line">                &quot;tcp-trans-timeout&quot;: &quot;0:04:00&quot;,</span><br><span class="line">                &quot;udp-timeout&quot;: &quot;0:05:00&quot;,</span><br><span class="line">                &quot;icmp-timeout&quot;: &quot;0:01:00&quot;,</span><br><span class="line">                &quot;logging-bib&quot;: false,</span><br><span class="line">                &quot;logging-session&quot;: false,</span><br><span class="line">                &quot;maximum-simultaneous-opens&quot;: 10,</span><br><span class="line">                &quot;ss-enabled&quot;: false,</span><br><span class="line">                &quot;ss-flush-asap&quot;: true,</span><br><span class="line">                &quot;ss-flush-deadline&quot;: 2000,</span><br><span class="line">                &quot;ss-capacity&quot;: 512,</span><br><span class="line">                &quot;ss-max-payload&quot;: 1452</span><br><span class="line">        &#125;,</span><br><span class="line"></span><br><span class="line">        &quot;pool4&quot;: [</span><br><span class="line">                &#123;</span><br><span class="line">                        &quot;comment&quot;: &quot;mark, port range and max-iterations are optional.&quot;,</span><br><span class="line">                        &quot;mark&quot;: 0,</span><br><span class="line">                        &quot;protocol&quot;: &quot;TCP&quot;,</span><br><span class="line">                        &quot;prefix&quot;: &quot;192.168.2.236&#x2F;32&quot;,</span><br><span class="line">                        &quot;port range&quot;: &quot;32768-65535&quot;</span><br><span class="line">                &#125;, &#123;</span><br><span class="line">                        &quot;mark&quot;: 0,</span><br><span class="line">                        &quot;protocol&quot;: &quot;UDP&quot;,</span><br><span class="line">                        &quot;prefix&quot;: &quot;192.168.2.236&#x2F;32&quot;,</span><br><span class="line">                        &quot;port range&quot;: &quot;32768-65535&quot;,</span><br><span class="line">                        &quot;max-iterations&quot;: 1500</span><br><span class="line">                &#125;, &#123;</span><br><span class="line">                        &quot;mark&quot;: 0,</span><br><span class="line">                        &quot;protocol&quot;: &quot;ICMP&quot;,</span><br><span class="line">                        &quot;prefix&quot;: &quot;192.168.2.236&#x2F;32&quot;,</span><br><span class="line">                        &quot;port range&quot;: &quot;1000-2000&quot;</span><br><span class="line">                &#125;</span><br><span class="line">        ]</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>别忘了启用jool</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">uci set jool.general.enabled&#x3D;&quot;1&quot;</span><br><span class="line">uci set jool.nat64.enabled&#x3D;&quot;1&quot;</span><br><span class="line">uci commit jool</span><br><span class="line">&#x2F;etc&#x2F;init.d&#x2F;jool restart</span><br></pre></td></tr></table></figure>
+<p>在主网关上添加<code>64:ff9b::/96</code>静态路由指向NAT64设备，主网关设备的<code>/etc/config/network</code>加入</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">config route6</span><br><span class="line">        option interface &#39;lan8&#39;</span><br><span class="line">        option target &#39;64:ff9b::&#x2F;96&#39;</span><br><span class="line">        option gateway &#39;fd20:d20:0:8::cd7&#39;</span><br></pre></td></tr></table></figure>
+<p>其中<code>fd20:d20:0:8::cd7</code>是NAT64设备lan口（vlan8）的ULA前缀地址，ULA地址由主网关通过DHCPv6分配，基本上属于固定地址了，实在不放心可以在DHCPv6的静态租约里面固定后缀。当然也可以使用FE80开头的本地链路地址。</p>
+<p>找一台vlan8的终端，ping测一下<code>64:ff9b::223.5.5.5</code>，如无意外应该是可以ping通的。</p>
+<h2 id="配置DNS64、PREF64"><a href="#配置DNS64、PREF64" class="headerlink" title="配置DNS64、PREF64"></a>配置DNS64、PREF64</h2><p>有了NAT64后还需要DNS64来配合把域名的A记录转换为AAAA记录。配置DNS64后当一个域名有AAAA记录，DNS64服务器直接返回该域名的AAAA记录，如果域名没有AAAA记录只有A记录，那么DNS64服务器将通过NAT64前缀合成一个IPv6地址返回，引导终端访问NAT64服务。</p>
+<p>在OpneWrt里用unbound可以实现DNS64这个功能。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">opkg update</span><br><span class="line">opkg install luci-app-unbound </span><br></pre></td></tr></table></figure>
+<p>OpneWrt的dns服务默认由dnsmasq提供，所以dnsmasq会占用53端口。我这里把他修改成别的端口，然后启用unbound。</p>
+<p><code>/etc/config/dhcp </code>配置文件修改dnsmasq的dns端口</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">config dnsmasq</span><br><span class="line">        option port &#39;54&#39;</span><br></pre></td></tr></table></figure>
+<p><code>/etc/config/unbound</code>配置文件开启DNS64，配置NAT64前缀，并把根域名转发至上游的DNS服务器，相当于把unbound配置成一个DNS递归服务器。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">config unbound &#39;ub_main&#39;</span><br><span class="line">        option dns64 &#39;1&#39;</span><br><span class="line">        option dns64_prefix &#39;64:ff9b::&#x2F;96&#39;</span><br><span class="line">config zone</span><br><span class="line">        option fallback &#39;0&#39;</span><br><span class="line">        option enabled &#39;1&#39;</span><br><span class="line">        option zone_type &#39;forward_zone&#39;</span><br><span class="line">        list server &#39;2400:3200::1&#39;</span><br><span class="line">        option dns_assist &#39;none&#39;</span><br><span class="line">        list zone_name &#39;.&#39;</span><br></pre></td></tr></table></figure>
+<p>在主网关的<code>/etc/config/dhcp</code>，通过RA下发DNS服务器地址。默认是下发主网关本身作为DNS服务器，我把ubound部署在NAT64设备（也就是旁网关）上，所以需要修改下发DNS地址为旁网关的地址。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">config dhcp &#39;lan8&#39;</span><br><span class="line">        list dns &#39;fd20:d20:0:8::cd7&#39;</span><br></pre></td></tr></table></figure>
+<p>配置完成后通过nslookup一个仅有A记录的域名，可以看到有NAT64前缀的AAAA记录返回。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">nslookup ipv4.3322.net</span><br><span class="line">服务器:  UnKnown</span><br><span class="line">Address:  fd20:d20:0:8::cd7</span><br><span class="line"></span><br><span class="line">非权威应答:</span><br><span class="line">名称:    ipv4.3322.net</span><br><span class="line">Addresses:  64:ff9b::76b8:a920</span><br><span class="line">          118.184.169.32</span><br></pre></td></tr></table></figure>
+<p>PREF64是通过路由器公告（RA）或DHCPv6，向客户端动态传递NAT64前缀信息，在主网关的<code>/etc/config/dhcp</code>加入配置或者在luci界面均可进行配置。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">config dhcp &#39;lan8&#39;</span><br><span class="line">        option ra_pref64 &#39;64:ff9b::&#x2F;96&#39;</span><br></pre></td></tr></table></figure>
+<p>在vlan8的终端上抓包确认PREF64是否已经通告RA宣告<code>tcpdump -i eth0.8 -nnv icmp6 </code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">01:36:43.670678 IP6 (flowlabel 0x7e65c, hlim 255, next-header ICMPv6 (58) payload length: 192) fe80::xxxx:xxxx:xxxx:xxxx &gt; ff02::1: [icmp6 sum ok] ICMP6, router advertisement, length 192</span><br><span class="line">        hop limit 64, Flags [managed, other stateful], pref medium, router lifetime 1800s, reachable time 0ms, retrans timer 0ms</span><br><span class="line">          source link-address option (1), length 8 (1): xx:xx:xx:xx:xx:xx</span><br><span class="line">          mtu option (5), length 8 (1):  1492</span><br><span class="line">          prefix info option (3), length 32 (4): 2409:xxxx:xxxx:xxx8::&#x2F;64, Flags [onlink, auto], valid time 5400s, pref. time 2700s</span><br><span class="line">          prefix info option (3), length 32 (4): fd20:d20:0:8::&#x2F;64, Flags [onlink, auto], valid time 5400s, pref. time 2700s</span><br><span class="line">          route info option (24), length 24 (3):  2409:xxxx:xxxx:xxx0::&#x2F;60, pref&#x3D;medium, lifetime&#x3D;1800s</span><br><span class="line">          route info option (24), length 24 (3):  fd20:d20::&#x2F;48, pref&#x3D;medium, lifetime&#x3D;1800s</span><br><span class="line">          rdnss option (25), length 24 (3):  lifetime 1800s, addr: fd20:d20:0:8::cd7</span><br><span class="line">          unknown option (38), length 16 (2): </span><br><span class="line">          0x0000:  0708 0064 ff9b 0000 0000 0000 0000</span><br></pre></td></tr></table></figure>
+<p>可以看到option (38) 包含了NAT64前缀，说明成功了。tcpdump version 4.99.4还识别不出来option (38) 所以显示为unknown option。</p>
+<p>不过暂时还不知道有什么直观的办法去验证PREF64的具体作用，开没开感觉区别不大，猜想可能在大型网络中，有多个NAT64设备的时候，通过PREF64同时通告多个NAT64前缀实现可以负载分担的效果。</p>
+<p>也有可能我手上的终端还不支持PREF64，或者系统的CLAT在没有PREF64的情况下自动转换成了公共NAT64前缀<code>64:ff9b::/96</code>。</p>
+<p>以下是AI给出的PREF64支持情况（2025年2月）。</p>
+<h3 id="各平台支持情况"><a href="#各平台支持情况" class="headerlink" title="各平台支持情况"></a><strong>各平台支持情况</strong></h3><table>
+<thead>
+<tr>
+<th align="left"><strong>平台</strong></th>
+<th align="left"><strong>DNS64支持</strong></th>
+<th align="left"><strong>PREF64支持</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>Android</strong></td>
+<td align="left">支持（需Android 5.0+）</td>
+<td align="left">部分支持（Android 12+）</td>
+</tr>
+<tr>
+<td align="left"><strong>iOS</strong></td>
+<td align="left">完全支持（iOS 9.0+）</td>
+<td align="left">支持（iOS 14+）</td>
+</tr>
+<tr>
+<td align="left"><strong>Windows</strong></td>
+<td align="left">支持（Windows 10 1703+）</td>
+<td align="left">需手动配置或依赖第三方工具</td>
+</tr>
+</tbody></table>
+<h2 id="为原有的双栈vlan开启DHCP-Option-108"><a href="#为原有的双栈vlan开启DHCP-Option-108" class="headerlink" title="为原有的双栈vlan开启DHCP Option 108"></a>为原有的双栈vlan开启DHCP Option 108</h2><p>开启办法，在主网关的DHCPv4里面开启即可<code>/etc/config/dhcp</code>或LUCI页面配置均可，其中0:0:7:8=0x78（16进制）= 1800秒 = 30分钟。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">config dhcp &#39;lan2&#39;</span><br><span class="line">        list dhcp_option &#39;108,0:0:7:8&#39;</span><br></pre></td></tr></table></figure>
+<p>开启后，在当前网络支持IPv6-only的前提下（包括但不限于已经具备NAT64、DNS64、PREF64、464XLT等能力），支持DHCP Option 108的终端将会在获取到IPv4地址30分钟后，释放IPv4地址租约，取消所在接口的IPv4地址，并运行在IPv6-only模式。</p>
+<p>我暂时还没开启这个选项，一方面还不清楚我的终端是否支持DHCP Option 108。截止2025年2月，AI也不认识DHCP Option 108，没法给出支持情况。另一方面，我还需要长期运行并观察NAT64/DNS64的稳定性和可用性，待坑都踩完只再考虑把在主vlan开启这个选项。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>以上所有操作所用的OpenWrt版本均为官网23.05，部署完成后我将会持续使用观察。</p>
+<p>另外，浏览器安装IPvFoo这个插件可以方便查看当前网站有多少域名使用了多少IPv6。</p>
+<p>Enjoy~~</p>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://blog.lingxh.com/post/464xlat/">https://blog.lingxh.com/post/464xlat/</a><br><a target="_blank" rel="noopener" href="https://ripe87.ripe.net/wp-content/uploads/presentations/8-IPv6-mostly_on_OpenWRT.pdf">https://ripe87.ripe.net/wp-content/uploads/presentations/8-IPv6-mostly_on_OpenWRT.pdf</a><br><a target="_blank" rel="noopener" href="https://openwrt.org/docs/guide-user/network/ipv6/nat64">https://openwrt.org/docs/guide-user/network/ipv6/nat64</a><br><a target="_blank" rel="noopener" href="https://datatracker.ietf.org/doc/html/rfc8925">https://datatracker.ietf.org/doc/html/rfc8925</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/openwrt/" rel="tag"># openwrt</a>
+              <a href="/tags/jool/" rel="tag"># jool</a>
+              <a href="/tags/nat64/" rel="tag"># nat64</a>
+              <a href="/tags/dns64/" rel="tag"># dns64</a>
+              <a href="/tags/ipv6/" rel="tag"># ipv6</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/202502/built_a_home_network/" rel="prev" title="从0开始部署家庭网络">
+      <i class="fa fa-chevron-left"></i> 从0开始部署家庭网络
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">D2O</p>
+  <div class="site-description" itemprop="description">blog.d2okkk.net</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">37</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/conupefox" title="GitHub → https://github.com/conupefox" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto::d2o@d2okkk.net" title="E-Mail → mailto::d2o@d2okkk.net" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2007 – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">D2O</span>
+</div>
+
+        
+
+
+
+
+
+
+<script>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = decodeURI(visitors.id);
+      var title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              Counter('post', '/classes/Counter', { title, url, time: 1 })
+                .then(response => response.json())
+                .then(() => {
+                  leancloudSelector(url).innerText = 1;
+                })
+                .catch(error => {
+                  console.error('Failed to create', error);
+                });
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            let target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    let { app_id, app_key, server_url } = {"enable":true,"app_id":"SYDjiw6UPzCjdiA8VmNPCtCY-gzGzoHsz","app_key":"FzX3nHM3RGxu1jDo8jA24wA8","server_url":null,"security":false};
+    function fetchData(api_server) {
+      var Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    let api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '7ed0d043553f2a84d736',
+      clientSecret: 'a3e18e362694db66619b46f5d79e0f4cd84ab640',
+      repo        : 'conupefox.github.io',
+      owner       : 'conupefox',
+      admin       : ['conupefox'],
+      id          : '4829d5ead6383854ef2c33b30bce7edd',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
